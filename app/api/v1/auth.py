@@ -29,7 +29,7 @@ async def get_me(current_user: User = Depends(get_current_user)):
 async def verify_admin(current_user: User = Depends(get_current_user)):
     """
     Double-gate admin check:
-      Gate 1 — Clerk publicMetadata must have role: admin
+      Gate 1 — User role must be admin (synced from Clerk JWT)
       Gate 2 — Email must be in server-side ADMIN_EMAILS whitelist (.env)
 
     Both must pass. Neither alone is sufficient.
@@ -37,9 +37,9 @@ async def verify_admin(current_user: User = Depends(get_current_user)):
     """
     user_email = (current_user.email or "").lower().strip()
 
-    # Gate 1: Clerk role check (set via Clerk Dashboard)
-    clerk_role = (current_user.clerk_metadata or {}).get("role", "")
-    has_clerk_role = clerk_role == "admin"
+    # Gate 1: Check role that was synced from Clerk during get_current_user
+    user_role = current_user.role.value if hasattr(current_user.role, "value") else str(current_user.role)
+    has_clerk_role = user_role == "admin"
 
     # Gate 2: Server whitelist check (only editable by developer via .env)
     in_whitelist = settings.is_admin_email(user_email)
