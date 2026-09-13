@@ -1,0 +1,6 @@
+{
+  "name": "Siya Ram Arts — Handcrafted Sacred Murtis",
+  "description": "Premium e-commerce platform and inventory system for authentic, temple-grade handcrafted sacred idols and murtis.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

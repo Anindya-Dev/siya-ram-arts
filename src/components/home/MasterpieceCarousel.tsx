@@ -1,0 +1,140 @@
+import React, { useState } from 'react';
+import { Star, Heart, ArrowLeft, ArrowRight } from 'lucide-react';
+import { PRODUCTS } from '../../data/products';
+import { formatCurrency } from '../../lib/utils';
+import { Button } from '../ui/Button';
+
+interface MasterpieceCarouselProps {
+  onSelectProduct: (slug: string) => void;
+}
+
+export const MasterpieceCarousel: React.FC<MasterpieceCarouselProps> = ({
+  onSelectProduct,
+}) => {
+  const [wishlisted, setWishlisted] = useState<Record<string, boolean>>({
+    'prod-ram-lalla': true,
+  });
+
+  const toggleWishlist = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    setWishlisted((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const featured = PRODUCTS.filter((p) => p.isFeaturedMasterpiece || p.featuredOrder);
+
+  return (
+    <section className="py-20 bg-[#F5F2ED] border-t border-b border-[#D4AF37]/20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header with Carousel Navigation */}
+        <div className="flex items-end justify-between pb-8 border-b border-[#D4AF37]/20">
+          <div>
+            <span className="text-[11px] tracking-[0.25em] text-[#8B5A2B] uppercase font-serif font-bold block mb-1">
+              HAND-CARVED HIGHLIGHTS
+            </span>
+            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#3A2D20]">
+              The Sanctum Masterpiece Selection
+            </h2>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              aria-label="Previous masterpieces"
+              className="w-10 h-10 rounded-full border border-[#D4AF37]/30 bg-[#FFFDF5] text-[#5C5248] hover:bg-white hover:text-[#8B5A2B] hover:border-[#8B5A2B] flex items-center justify-center transition-colors focus:outline-none shadow-2xs"
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </button>
+            <button
+              aria-label="Next masterpieces"
+              className="w-10 h-10 rounded-full border border-[#D4AF37]/30 bg-[#FFFDF5] text-[#5C5248] hover:bg-white hover:text-[#8B5A2B] hover:border-[#8B5A2B] flex items-center justify-center transition-colors focus:outline-none shadow-2xs"
+            >
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Masterpiece Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-8">
+          {featured.map((product) => {
+            const isFav = wishlisted[product.id];
+            return (
+              <div
+                key={product.id}
+                onClick={() => onSelectProduct(product.slug)}
+                className="group bg-[#FFFDF5] border border-[#D4AF37]/25 rounded-md overflow-hidden shadow-2xs hover:shadow-lg transition-all duration-300 flex flex-col cursor-pointer"
+              >
+                {/* Image Container with Badges */}
+                <div className="relative h-72 w-full bg-[#FAF9F6] overflow-hidden">
+                  <img
+                    src={product.images[0]?.src}
+                    alt={product.images[0]?.alt || product.name}
+                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                  />
+
+                  {/* Top Pill Tag */}
+                  <div className="absolute top-3 left-3 bg-[#FFFDF5]/90 backdrop-blur-xs px-2.5 py-1 rounded-xs border border-[#D4AF37]/30 text-[10px] font-serif uppercase tracking-widest text-[#8B5A2B] font-semibold">
+                    {product.material.split('/')[0]}
+                  </div>
+
+                  {/* Wishlist Button */}
+                  <button
+                    onClick={(e) => toggleWishlist(e, product.id)}
+                    aria-label={`Wishlist ${product.name}`}
+                    className="absolute top-3 right-3 w-8 h-8 rounded-full bg-[#FFFDF5]/90 backdrop-blur-xs border border-[#D4AF37]/30 flex items-center justify-center text-[#5C5248] hover:text-[#A34D3D] transition-colors focus:outline-none"
+                  >
+                    <Heart
+                      className={`w-4 h-4 ${isFav ? 'fill-[#A34D3D] text-[#A34D3D]' : ''}`}
+                    />
+                  </button>
+                </div>
+
+                {/* Card Content */}
+                <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                  <div className="space-y-2">
+                    {/* Star Rating */}
+                    <div className="flex items-center gap-1.5 text-xs text-[#5C5248]">
+                      <div className="flex items-center text-[#D4AF37]">
+                        <Star className="w-3.5 h-3.5 fill-[#D4AF37]" />
+                      </div>
+                      <span className="font-semibold text-[#3A2D20]">{product.rating.toFixed(1)}</span>
+                      <span>({product.reviewCount} Reviews)</span>
+                    </div>
+
+                    {/* Title */}
+                    <h3 className="font-serif text-lg font-bold text-[#3A2D20] group-hover:text-[#8B5A2B] transition-colors line-clamp-2 leading-snug">
+                      {product.name}
+                    </h3>
+                    <p className="text-xs text-[#5C5248] line-clamp-1">
+                      {product.specifications.heightWidth} • {product.deityForm}
+                    </p>
+                  </div>
+
+                  {/* Price & View Button */}
+                  <div className="pt-3 border-t border-[#D4AF37]/20 flex items-center justify-between">
+                    <div>
+                      <span className="text-[9px] uppercase tracking-wider text-[#8A8177] block font-serif">
+                        Pratishtha Offering
+                      </span>
+                      <span className="font-serif text-lg font-bold text-[#8B5A2B]">
+                        {formatCurrency(product.basePrice)}
+                      </span>
+                    </div>
+
+                    <Button
+                      variant="gold"
+                      size="sm"
+                      onClick={() => onSelectProduct(product.slug)}
+                      className="font-serif tracking-wider text-xs px-3"
+                    >
+                      View Details
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+};

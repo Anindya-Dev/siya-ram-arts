@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Cormorant Garamond", Georgia, serif;
+  --font-display: "Cinzel", Georgia, serif;
+  --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* Natural Tones Palette */
+  --color-warm-bg: #FAF9F6;
+  --color-warm-cream: #F5F2ED;
+  --color-warm-card: #FFFDF5;
+  --color-warm-surface: #E6E2DA;
+  --color-warm-muted: #ECE7DE;
+
+  /* Natural Tones Ochre, Wood & Antique Gold */
+  --color-gold-deep: #8B5A2B;
+  --color-gold-rich: #A67C52;
+  --color-gold-accent: #D4AF37;
+  --color-gold-light: #FFFDF5;
+  --color-gold-border: rgba(212, 175, 55, 0.25);
+  --color-gold-hairline: rgba(166, 124, 82, 0.2);
+
+  /* Natural Tones Terracotta Alert */
+  --color-terracotta: #A34D3D;
+  --color-terracotta-hover: #8A3D2F;
+  --color-terracotta-light: #FAF0ED;
+  --color-terracotta-border: #E8CAC3;
+
+  /* Natural Tones Neutrals */
+  --color-charcoal-primary: #2D2D2D;
+  --color-charcoal-secondary: #5C5248;
+  --color-charcoal-muted: #8C8276;
+}
+
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-warm-bg);
+    color: var(--color-charcoal-primary);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4, .font-serif-heading {
+    font-family: var(--font-serif);
+  }
+
+  .font-display-title {
+    font-family: var(--font-display);
+  }
+}
+
+/* Natural Tones Subtle Dot Pattern */
+.natural-dots {
+  background-image: radial-gradient(#A67C52 0.75px, transparent 0.75px);
+  background-size: 20px 20px;
+}
+
+/* Custom Temple Arch & Sacred Flourish Utilities */
+.temple-arch {
+  border-top-left-radius: 9999px;
+  border-top-right-radius: 9999px;
+}
+
+.temple-arch-card {
+  border-top-left-radius: 120px;
+  border-top-right-radius: 120px;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+
+/* Gold hairline divider */
+.gold-hairline {
+  border-color: rgba(212, 175, 55, 0.25);
+}
+
+/* Subtle gold shimmer */
+@keyframes subtle-glow {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 1; }
+}
+
+.animate-subtle-glow {
+  animation: subtle-glow 4s ease-in-out infinite;
+}
