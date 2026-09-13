@@ -57,8 +57,6 @@ async def verify_clerk_token(token: str) -> Dict[str, Any]:
             role = parts[3] if len(parts) > 3 else "customer"
             return {"sub": user_id, "email": f"{user_id}@example.com", "role": role}
 
-
-
     try:
         jwk_client = get_jwk_client()
         if jwk_client:
@@ -117,8 +115,10 @@ async def get_current_user(
         first_name = payload.get("first_name") or ""
         last_name = payload.get("last_name") or ""
         
-        # Determine role from claims if Clerk custom session claims configured
-        role_claim = payload.get("role", "customer").lower()
+        # Extract role properly from Clerk's publicMetadata (with fallback for testing tokens)
+        role_claim = payload.get("publicMetadata", {}).get("role") or payload.get("role", "customer")
+        role_claim = str(role_claim).lower()
+        
         assigned_role = UserRole.ADMIN if role_claim == "admin" else (UserRole.STAFF if role_claim == "staff" else UserRole.CUSTOMER)
 
         user = User(
