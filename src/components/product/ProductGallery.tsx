@@ -1,24 +1,24 @@
 import React, { useState } from 'react';
 import { ExternalLink, Sparkles, RotateCw, ZoomIn, ShieldCheck } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { ProductImage } from '../../types';
+import { getProductImageUrl } from '../../data/products';
 
 interface ProductGalleryProps {
-  images: {
-    src: string;
-    alt: string;
-  }[];
+  images: ProductImage[];
   certificateNumber: string;
 }
 
 export const ProductGallery: React.FC<ProductGalleryProps> = ({
-  images,
+  images = [],
   certificateNumber,
 }) => {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
   const [is360Mode, setIs360Mode] = useState(false);
 
-  const activeImage = images[activeImageIndex] || images[0];
+  const activeImage = images[activeImageIndex] || images[0] || { url: '/static/idols/swarna-vastra-kamadhenu-krishna.png', alt: 'Sacred Murti' };
+
 
   return (
     <div className="space-y-4">
@@ -44,8 +44,8 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
           onClick={() => setIsZoomed(!isZoomed)}
         >
           <img
-            src={activeImage.src}
-            alt={activeImage.alt}
+            src={getProductImageUrl(activeImage)}
+            alt={activeImage.alt || 'Sacred Murti'}
             className={cn(
               'max-h-full max-w-full object-contain filter drop-shadow-md transition-all duration-300',
               is360Mode && 'animate-subtle-glow'
@@ -97,8 +97,8 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
               )}
             >
               <img
-                src={img.src}
-                alt={img.alt}
+                src={getProductImageUrl(img)}
+                alt={img.alt || 'Thumbnail'}
                 className="w-full h-full object-cover object-center rounded-xs"
               />
             </button>

@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { HeroSection } from '../components/home/HeroSection';
 import { DeityCatalogSection } from '../components/home/DeityCatalogSection';
 import { MasterpieceCarousel } from '../components/home/MasterpieceCarousel';
 import { AuthenticitySection } from '../components/home/AuthenticitySection';
 import { Breadcrumbs } from '../components/common/Breadcrumbs';
+import { getLiveProducts } from '../data/products';
+import { Product } from '../types';
 
 interface HomePageProps {
   onNavigateProduct: (slug: string) => void;
@@ -16,6 +18,18 @@ export const HomePage: React.FC<HomePageProps> = ({
   onExploreCatalog,
   onRequestConsecration,
 }) => {
+  const [liveProducts, setLiveProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    getLiveProducts()
+      .then((data) => {
+        if (data && data.length > 0) {
+          setLiveProducts(data);
+        }
+      })
+      .catch((err) => console.error("Failed to load live catalog:", err));
+  }, []);
+
   return (
     <div className="space-y-0">
       {/* Breadcrumbs */}
@@ -39,8 +53,9 @@ export const HomePage: React.FC<HomePageProps> = ({
         }}
       />
 
-      {/* Deity Catalog Section */}
+      {/* Deity Catalog Section with Live Products */}
       <DeityCatalogSection
+        products={liveProducts}
         onSelectProduct={(slug) => {
           onNavigateProduct(slug);
         }}

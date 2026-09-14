@@ -2,27 +2,62 @@ export type DeityCategory = string;
 export type MaterialType = string;
 export type IntentionType = string;
 
+export interface PaginatedResponse<T> {
+  items: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 export interface ProductVariant {
   id: string;
+  productId?: string;
   size: string; // e.g. "9-inch", "15-inch", "18-inch", "24-inch"
-  stockCount: number;
+  material?: string;
+  finish?: string;
+  basePrice?: number;
   priceDelta: number; // difference from base price
+  sku?: string;
+  isActive?: boolean;
+  createdAt?: string;
+  totalAvailableStock?: number;
+  // Compatibility fallbacks
+  stockCount?: number;
   isLowStock?: boolean;
-  status: 'In Stock' | 'Low Stock' | 'Mandir Reserved' | 'Out of Stock';
+  status?: 'In Stock' | 'Low Stock' | 'Mandir Reserved' | 'Out of Stock' | string;
+}
+
+export interface ProductImage {
+  url?: string;
+  src?: string;
+  alt: string;
+  isPrimary?: boolean;
+  is_primary?: boolean;
+  aspectRatio?: string;
 }
 
 export interface ProductSpecification {
-  canonicalForm: string;
-  primaryMedium: string;
-  ornamentationGrade: string;
-  mudrasAttributes: string;
-  pedestalFoundation: string;
-  archComposition: string;
-  authenticationSeal: string;
-  netWeight: string;
-  heightWidth: string;
-  provenance: string;
-  pratishthaStatus: string;
+  canonicalForm?: string;
+  primaryMedium?: string;
+  ornamentationGrade?: string;
+  mudrasAttributes?: string;
+  pedestalFoundation?: string;
+  archComposition?: string;
+  authenticationSeal?: string;
+  netWeight?: string;
+  heightWidth?: string;
+  provenance?: string;
+  pratishthaStatus?: string;
+  [key: string]: any;
+}
+
+export interface SevaGuidelines {
+  panchamritAbhishek?: string;
+  goldFoilCare?: string;
+  chandanKumkum?: string;
+  transitInstallation?: string;
+  [key: string]: any;
 }
 
 export interface Review {
@@ -60,25 +95,18 @@ export interface Product {
     artisanName: string;
     artisanTitle: string;
   };
-  images: {
-    src: string;
-    alt: string;
-    isPrimary?: boolean;
-    aspectRatio?: string;
-  }[];
+  images: ProductImage[];
   variants: ProductVariant[];
   selectedVariantId?: string;
   specifications: ProductSpecification;
-  sevaGuidelines: {
-    panchamritAbhishek: string;
-    goldFoilCare: string;
-    chandanKumkum: string;
-    transitInstallation: string;
-  };
+  sevaGuidelines: SevaGuidelines;
   tags: string[];
   certificateNumber: string;
   isFeaturedMasterpiece?: boolean;
   featuredOrder?: number;
+  // Helper / fallback
+  image?: string;
+  totalAvailableStock?: number;
 }
 
 export interface InventoryItem {
@@ -91,7 +119,7 @@ export interface InventoryItem {
   materialPurity: string;
   sizeAndWeight: string;
   basePrice: number;
-  status: 'In Stock' | 'Low Stock' | 'Mandir Reserved' | 'Out of Stock';
+  status: 'In Stock' | 'Low Stock' | 'Mandir Reserved' | 'Out of Stock' | string;
   variants: {
     size: string;
     stock: number;
@@ -102,12 +130,20 @@ export interface InventoryItem {
 }
 
 export interface CartItem {
-  product: Product;
-  selectedSize: string;
-  selectedMaterial: string;
-  selectedOrnamentation: string;
+  id?: string;
+  product?: Product;
+  productId?: string;
+  variantId?: string;
+  name?: string;
+  image?: string;
+  size?: string;
+  material?: string;
+  ornamentation?: string;
   quantity: number;
   unitPrice: number;
+  selectedSize?: string;
+  selectedMaterial?: string;
+  selectedOrnamentation?: string;
 }
 
 export interface BreadcrumbItem {
@@ -115,3 +151,17 @@ export interface BreadcrumbItem {
   href: string;
   current?: boolean;
 }
+
+export interface CheckoutItemInput {
+  variantId: string;
+  locationId?: string;
+  quantity: number;
+  reservationId?: string;
+}
+
+export interface CheckoutPayload {
+  items: CheckoutItemInput[];
+  shippingAddressId: string;
+  customerNotes?: string;
+}
+

@@ -36,7 +36,7 @@ export function generateProductSchema(product: Product) {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.name,
-    image: product.images.map(img => img.src),
+    image: product.images.map(img => img.src || img.url).filter(Boolean),
     description: product.longDescription,
     sku: product.sku,
     mpn: product.sku,
@@ -56,7 +56,7 @@ export function generateProductSchema(product: Product) {
       priceCurrency: 'INR',
       price: calculatedPrice.toString(),
       itemCondition: 'https://schema.org/NewCondition',
-      availability: selectedVariant?.stockCount > 0 
+      availability: (selectedVariant?.totalAvailableStock ?? selectedVariant?.stockCount ?? 0) > 0
         ? 'https://schema.org/InStock' 
         : 'https://schema.org/OutOfStock',
       seller: {
