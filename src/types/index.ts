@@ -1,7 +1,15 @@
+// =============================================================================
+// Siya Ram Arts — Frontend TypeScript Contracts
+// Aligned to backend camelCase API (app/schemas/product.py + BaseResponseSchema)
+// Last updated: 2026-09-14 by Owner (seed/type alignment pass)
+// =============================================================================
+
 export type DeityCategory = string;
 export type MaterialType = string;
 export type IntentionType = string;
 
+// ─── Paginated API response wrapper ──────────────────────────────────────────
+// Matches PaginatedResponse in app/schemas/common.py (to_camel serialised)
 export interface PaginatedResponse<T> {
   items: T[];
   total: number;
@@ -10,56 +18,47 @@ export interface PaginatedResponse<T> {
   totalPages: number;
 }
 
+// ─── Product Variant ──────────────────────────────────────────────────────────
+// Matches ProductVariantRead in app/schemas/product.py
 export interface ProductVariant {
   id: string;
-  productId?: string;
-  size: string; // e.g. "9-inch", "15-inch", "18-inch", "24-inch"
-  material?: string;
-  finish?: string;
-  basePrice?: number;
-  priceDelta: number; // difference from base price
-  sku?: string;
-  isActive?: boolean;
-  createdAt?: string;
-  totalAvailableStock?: number;
-  // Compatibility fallbacks
-  stockCount?: number;
-  isLowStock?: boolean;
-  status?: 'In Stock' | 'Low Stock' | 'Mandir Reserved' | 'Out of Stock' | string;
+  productId: string;
+  size: string;           // e.g. "9-inch", "15-inch", "18-inch", "24-inch"
+  material: string;       // e.g. "White Marble Resin"
+  finish: string;         // e.g. "Saffron & Gold Hand-Painted"
+  basePrice: number;      // base price for this variant in INR (paise not used)
+  priceDelta: number;     // difference from the product-level base price
+  sku: string;
+  isActive: boolean;
+  totalAvailableStock: number; // computed: sum of (stock_count - reserved_count) across locations
 }
 
-export interface ProductImage {
-  url?: string;
-  src?: string;
-  alt: string;
-  isPrimary?: boolean;
-  is_primary?: boolean;
-  aspectRatio?: string;
-}
-
+// ─── Product Specification ────────────────────────────────────────────────────
+// Canonical keys decided by Owner (2026-09-14) — matches seed.py specifications dict
+// Backend stores this as a free-form Dict[str, Any]; frontend uses these keys.
 export interface ProductSpecification {
-  canonicalForm?: string;
-  primaryMedium?: string;
-  ornamentationGrade?: string;
-  mudrasAttributes?: string;
-  pedestalFoundation?: string;
-  archComposition?: string;
-  authenticationSeal?: string;
-  netWeight?: string;
-  heightWidth?: string;
-  provenance?: string;
-  pratishthaStatus?: string;
-  [key: string]: any;
+  canonicalForm: string;        // e.g. "Kamadhenu Krishna playing Bansuri on Lotus"
+  primaryMedium: string;        // replaces old "Finish" key
+  ornamentationGrade: string;   // e.g. "24K Gold Leaf Vark"
+  mudrasAttributes: string;     // e.g. "Abhaya Mudra, Varada Mudra"
+  pedestalFoundation: string;   // e.g. "Pink Lotus Base"
+  archComposition: string;      // e.g. "Single-figure composition"
+  authenticationSeal: string;   // e.g. "SRA-CERT-2026-KR01"
+  netWeight: string;            // replaces old "Weight" key, e.g. "11.2 kg"
+  heightWidth: string;          // e.g. "15-inch height, 8-inch width"
+  provenance: string;           // e.g. "Jaipur Artisan Atelier, Rajasthan"
+  pratishthaStatus: string;     // e.g. "Pratishtha-ready" | "Requires consecration"
+  craftsmanshipTime: string;    // e.g. "21 Days" — replaces old "Craftsmanship Time" key
 }
 
-export interface SevaGuidelines {
-  panchamritAbhishek?: string;
-  goldFoilCare?: string;
-  chandanKumkum?: string;
-  transitInstallation?: string;
-  [key: string]: any;
+// ─── Carver Quote ─────────────────────────────────────────────────────────────
+export interface CarverQuote {
+  quote: string;
+  artisanName: string;
+  artisanTitle: string;
 }
 
+// ─── Review ───────────────────────────────────────────────────────────────────
 export interface Review {
   id: string;
   author: string;
@@ -73,6 +72,8 @@ export interface Review {
   altarName?: string;
 }
 
+// ─── Product ──────────────────────────────────────────────────────────────────
+// Matches ProductRead in app/schemas/product.py (to_camel serialised)
 export interface Product {
   id: string;
   slug: string;
@@ -90,25 +91,29 @@ export interface Product {
   atelier: string;
   shortDescription: string;
   longDescription: string;
-  carverQuote?: {
-    quote: string;
-    artisanName: string;
-    artisanTitle: string;
-  };
-  images: ProductImage[];
-  variants: ProductVariant[];
-  selectedVariantId?: string;
-  specifications: ProductSpecification;
-  sevaGuidelines: SevaGuidelines;
-  tags: string[];
   certificateNumber: string;
   isFeaturedMasterpiece?: boolean;
   featuredOrder?: number;
-  // Helper / fallback
-  image?: string;
-  totalAvailableStock?: number;
+  carverQuote?: CarverQuote;
+  // Images: backend stores and returns { url, alt, isPrimary }
+  // NOTE: the key is "url" (not "src"). Do NOT use "src".
+  images: {
+    url: string;
+    alt: string;
+    isPrimary?: boolean;
+  }[];
+  variants: ProductVariant[];
+  specifications: ProductSpecification;
+  // Seva guidelines are free-form key/value; shape below is illustrative.
+  sevaGuidelines: {
+    [key: string]: string;
+  };
+  tags: string[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
+// ─── Inventory Item (Admin panel) ─────────────────────────────────────────────
 export interface InventoryItem {
   id: string;
   productId: string;
@@ -119,7 +124,7 @@ export interface InventoryItem {
   materialPurity: string;
   sizeAndWeight: string;
   basePrice: number;
-  status: 'In Stock' | 'Low Stock' | 'Mandir Reserved' | 'Out of Stock' | string;
+  status: 'In Stock' | 'Low Stock' | 'Mandir Reserved' | 'Out of Stock';
   variants: {
     size: string;
     stock: number;
@@ -129,39 +134,19 @@ export interface InventoryItem {
   }[];
 }
 
+// ─── Cart ─────────────────────────────────────────────────────────────────────
 export interface CartItem {
-  id?: string;
-  product?: Product;
-  productId?: string;
-  variantId?: string;
-  name?: string;
-  image?: string;
-  size?: string;
-  material?: string;
-  ornamentation?: string;
+  product: Product;
+  selectedSize: string;
+  selectedMaterial: string;
+  selectedOrnamentation: string;
   quantity: number;
   unitPrice: number;
-  selectedSize?: string;
-  selectedMaterial?: string;
-  selectedOrnamentation?: string;
 }
 
+// ─── Navigation ───────────────────────────────────────────────────────────────
 export interface BreadcrumbItem {
   label: string;
   href: string;
   current?: boolean;
 }
-
-export interface CheckoutItemInput {
-  variantId: string;
-  locationId?: string;
-  quantity: number;
-  reservationId?: string;
-}
-
-export interface CheckoutPayload {
-  items: CheckoutItemInput[];
-  shippingAddressId: string;
-  customerNotes?: string;
-}
-

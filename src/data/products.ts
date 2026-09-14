@@ -1,5 +1,5 @@
 // src/data/products.ts
-import { Product, InventoryItem, Review, ProductImage, PaginatedResponse } from '../types';
+import { Product, InventoryItem, Review, PaginatedResponse } from '../types';
 import { fetchApi } from '../lib/api.ts';
 
 export const ALL_REVIEWS: Review[] = [
@@ -53,10 +53,12 @@ export const ALL_REVIEWS: Review[] = [
   }
 ];
 
+type ProductImage = Product['images'][number];
+
 export function getProductImageUrl(img?: ProductImage | string | null): string {
   if (!img) return '';
   if (typeof img === 'string') return img;
-  return img.src || img.url || '';
+  return img.url;
 }
 
 export interface GetProductsParams {

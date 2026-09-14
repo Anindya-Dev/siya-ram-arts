@@ -204,14 +204,19 @@ export const AdminDashboardPage: React.FC = () => {
       atelier: 'Jalandhar Atelier',
       shortDescription: payload.shortDescription,
       longDescription: payload.longDescription,
-      images: [{ src: payload.imageSrc, alt: payload.name, isPrimary: true }],
+      images: [{ url: payload.imageSrc, alt: payload.name, isPrimary: true }],
       variants: [
         {
           id: `${newId}-var-1`,
+          productId: newId,
           size: payload.dimensions,
-          stockCount: payload.stockCount,
+          material: payload.material,
+          finish: 'Hand-finished',
+          basePrice: payload.basePrice,
           priceDelta: 0,
-          status: payload.status,
+          sku: `${payload.sku}-1`,
+          isActive: true,
+          totalAvailableStock: payload.stockCount,
         },
       ],
       specifications: {
@@ -225,7 +230,8 @@ export const AdminDashboardPage: React.FC = () => {
         netWeight: payload.dimensions.split('•')[1]?.trim() || '6.5 kg',
         heightWidth: payload.dimensions.split('•')[0]?.trim() || '12-inch',
         provenance: 'Jalandhar, Punjab',
-        pratishthaStatus: 'Temple Consecrated',
+          pratishthaStatus: 'Temple Consecrated',
+          craftsmanshipTime: 'Made to order',
       },
       sevaGuidelines: {
         panchamritAbhishek: 'Wipe gently with clean soft cotton after jal abhishek.',

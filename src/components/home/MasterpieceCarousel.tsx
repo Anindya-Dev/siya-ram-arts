@@ -99,7 +99,7 @@ export const MasterpieceCarousel: React.FC<MasterpieceCarouselProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-8">
             {featured.map((product) => {
               const isFav = wishlisted[product.id];
-              const imageSrc = getProductImageUrl(product.images?.[0]) || product.image || '/static/idols/swarna-vastra-kamadhenu-krishna.png';
+              const imageSrc = getProductImageUrl(product.images?.[0]) || '/static/idols/swarna-vastra-kamadhenu-krishna.png';
               const sizeLabel = product.specifications?.heightWidth || product.specifications?.Weight || 'Handcrafted Sanctum Scale';
 
               return (

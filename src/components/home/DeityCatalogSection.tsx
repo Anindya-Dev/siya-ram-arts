@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowRight, Sparkles, Filter, Check, RefreshCw, AlertCircle } from 'lucide-react';
 import { formatCurrency, cn } from '../../lib/utils';
-import { getLiveProducts, getProductImageUrl, PRODUCTS } from '../../data/products';
+import { getLiveProducts, getProductImageUrl } from '../../data/products';
 import { Product } from '../../types';
 
 interface DeityCatalogSectionProps {
@@ -103,7 +103,7 @@ export const DeityCatalogSection: React.FC<DeityCatalogSectionProps> = ({
     }
   }, [initialProducts]);
 
-  const sourceProducts = products.length > 0 ? products : (initialProducts && initialProducts.length > 0 ? initialProducts : PRODUCTS);
+  const sourceProducts = products.length > 0 ? products : (initialProducts || []);
 
   // Filter products by active collection and deity
   const filteredProducts = sourceProducts.filter((product) => {
@@ -330,7 +330,7 @@ export const DeityCatalogSection: React.FC<DeityCatalogSectionProps> = ({
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredProducts.map((product) => {
-              const imageSrc = getProductImageUrl(product.images?.[0]) || product.image || '/static/idols/swarna-vastra-kamadhenu-krishna.png';
+              const imageSrc = getProductImageUrl(product.images?.[0]) || '/static/idols/swarna-vastra-kamadhenu-krishna.png';
               return (
                 <article
                   key={product.id}

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { ExternalLink, Sparkles, RotateCw, ZoomIn, ShieldCheck } from 'lucide-react';
 import { cn } from '../../lib/utils';
-import { ProductImage } from '../../types';
+import { Product } from '../../types';
 import { getProductImageUrl } from '../../data/products';
 
 interface ProductGalleryProps {
-  images: ProductImage[];
+  images: Product['images'];
   certificateNumber: string;
 }
 

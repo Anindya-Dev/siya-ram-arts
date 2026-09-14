@@ -26,7 +26,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onAddTo
   }, [product.id, variants]);
 
   const variant: ProductVariant | undefined = variants.find((item) => item.id === selectedVariantId) || variants[0];
-  const stock = variant?.totalAvailableStock ?? variant?.stockCount ?? 0;
+  const stock = variant?.totalAvailableStock ?? 0;
   const price = variant?.basePrice ?? product.basePrice;
 
   const copyLink = () => navigator.clipboard?.writeText?.(window.location.href);
@@ -61,7 +61,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onAddTo
         {showSizeGuide && <p className="p-3 rounded-sm bg-[#F5F2ED] border border-[#D4AF37]/30 text-xs text-[#5C5248]">Choose the size that fits your altar and leaves enough clearance for garlands and daily seva.</p>}
         {variants.length ? <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-serif">
           {variants.map((item) => {
-            const itemStock = item.totalAvailableStock ?? item.stockCount ?? 0;
+            const itemStock = item.totalAvailableStock ?? 0;
             const selected = item.id === variant?.id;
             return <button key={item.id} type="button" onClick={() => setSelectedVariantId(item.id)} className={cn('p-3 rounded-sm border text-left transition-all', selected ? 'bg-[#8B5A2B] text-white border-[#8B5A2B]' : 'bg-white text-[#5C5248] border-[#D4AF37]/30 hover:border-[#8B5A2B]')}>
               <span className="flex items-center justify-between font-bold"><span>{item.size}</span>{selected && <Check className="w-3.5 h-3.5 text-[#D4AF37]" />}</span>

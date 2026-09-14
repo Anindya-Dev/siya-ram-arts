@@ -5,6 +5,9 @@ import { Footer } from './components/common/Footer';
 import { HomePage } from './pages/HomePage';
 import { ProductDetailPage } from './pages/ProductDetailPage';
 import { AdminDashboardPage } from './pages/AdminDashboardPage';
+import { TermsOfServicePage } from './pages/TermsOfServicePage';
+import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
+import { ReturnsPolicyPage } from './pages/ReturnsPolicyPage';
 import { CartDrawer, CartItem } from './components/cart/CartDrawer';
 import { WishlistDrawer, WishlistItem } from './components/cart/WishlistDrawer';
 import { ConsecrationModal } from './components/common/ConsecrationModal';
@@ -22,7 +25,7 @@ export default function App() {
   const isAdmin = isSignedIn && user?.publicMetadata?.role === 'admin';
 
   // Navigation
-  const [currentPage, setCurrentPage] = useState<'home' | 'product' | 'admin'>('home');
+  const [currentPage, setCurrentPage] = useState<'home' | 'product' | 'admin' | 'terms' | 'privacy' | 'returns'>('home');
   const [activeProductSlug, setActiveProductSlug] = useState('handcrafted-chemical-resin-ram-lalla');
 
   // Modals
@@ -133,7 +136,7 @@ export default function App() {
         id: `cart-${Date.now()}`,
         productId: product.id,
         name: product.name,
-        image: product.images[0]?.src || '',
+        image: product.images[0]?.url || '',
         size,
         material,
         ornamentation,
@@ -277,6 +280,15 @@ export default function App() {
                   </div>
                 </div>
               )
+        )}
+        {currentPage === 'terms' && (
+          <TermsOfServicePage onNavigate={(p) => setCurrentPage(p as any)} />
+        )}
+        {currentPage === 'privacy' && (
+          <PrivacyPolicyPage onNavigate={(p) => setCurrentPage(p as any)} />
+        )}
+        {currentPage === 'returns' && (
+          <ReturnsPolicyPage onNavigate={(p) => setCurrentPage(p as any)} />
         )}
       </main>
 
