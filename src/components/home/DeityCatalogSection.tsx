@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { ArrowRight, Sparkles, Filter, Grid, Check } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ArrowRight, Sparkles, Filter, Check, RefreshCw, AlertCircle } from 'lucide-react';
 import { formatCurrency, cn } from '../../lib/utils';
-import { PRODUCTS } from '../../data/products';
+import { getLiveProducts, getProductImageUrl } from '../../data/products';
 import { Product } from '../../types';
 
 interface DeityCatalogSectionProps {
+  products?: Product[];
   onSelectProduct: (slug: string) => void;
 }
 
@@ -68,14 +69,44 @@ export const GOD_COLLECTIONS = [
 ];
 
 export const DeityCatalogSection: React.FC<DeityCatalogSectionProps> = ({
+  products: initialProducts,
   onSelectProduct,
 }) => {
   const [activeCollection, setActiveCollection] = useState<string>('all');
   const [selectedDeity, setSelectedDeity] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [priceRange, setPriceRange] = useState<string>('all');
+  const [products, setProducts] = useState<Product[]>(initialProducts || []);
+  const [loading, setLoading] = useState<boolean>(!initialProducts || initialProducts.length === 0);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadProducts = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await getLiveProducts(50);
+      setProducts(data);
+    } catch (err: any) {
+      setError(err?.message || 'Failed to load sacred murtis catalog.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (initialProducts && initialProducts.length > 0) {
+      setProducts(initialProducts);
+      setLoading(false);
+    } else {
+      loadProducts();
+    }
+  }, [initialProducts]);
+
+  const sourceProducts = products.length > 0 ? products : (initialProducts || []);
 
   // Filter products by active collection and deity
-  const filteredProducts = PRODUCTS.filter((product) => {
+  const filteredProducts = sourceProducts.filter((product) => {
     // Collection Filter logic
     let matchesCollection = true;
     if (activeCollection === 'krishna') {
@@ -114,34 +145,42 @@ export const DeityCatalogSection: React.FC<DeityCatalogSectionProps> = ({
       const q = searchQuery.toLowerCase();
       matchesSearch =
         product.name.toLowerCase().includes(q) ||
-        product.deity.toLowerCase().includes(q) ||
         product.sku.toLowerCase().includes(q) ||
-        product.tags.some((t) => t.toLowerCase().includes(q));
+        product.deity.toLowerCase().includes(q) ||
+        (product.deityForm && product.deityForm.toLowerCase().includes(q)) ||
+        (product.material && product.material.toLowerCase().includes(q));
     }
 
-    return matchesCollection && matchesDeity && matchesSearch;
+    const price = product.basePrice;
+    const matchesPrice =
+      priceRange === 'all' ||
+      (priceRange === 'under-25000' && price < 25000) ||
+      (priceRange === '25000-50000' && price >= 25000 && price <= 50000) ||
+      (priceRange === 'over-50000' && price > 50000);
+
+    return matchesCollection && matchesDeity && matchesSearch && matchesPrice;
   });
 
   return (
-    <section id="deities" className="py-16 bg-[#FAF9F6] border-t border-[#D4AF37]/20">
+    <section id="catalog" className="py-16 bg-[#FFFDF5]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Section Title */}
-        <div id="collections" className="text-center max-w-3xl mx-auto space-y-3 pb-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FFFDF5] border border-[#D4AF37]/30 text-[#8B5A2B] text-[11px] font-serif uppercase tracking-[0.2em]">
-            <Sparkles className="w-3 h-3 text-[#D4AF37]" />
-            <span>Sacred God Collections</span>
+        {/* Section Header */}
+        <div className="text-center max-w-3xl mx-auto mb-12 space-y-3">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#F5F2ED] border border-[#D4AF37]/30 text-[#8B5A2B] text-xs font-serif uppercase tracking-widest font-bold">
+            <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
+            <span>Complete Sacred Vigraha Collection</span>
           </div>
-          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#3A2D20]">
-            Handcrafted Sacred Murtis by Deity
+          <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#3A2D20] tracking-tight">
+            Handcrafted Murtis by Master Jaipuri Artisans
           </h2>
-          <p className="text-sm text-[#5C5248] font-sans">
-            Curated collections of divine presences carved in pure Makrana white marble, chemical resin, and gold foil accents.
+          <p className="text-sm text-[#5C5248] font-sans leading-relaxed">
+            Every sacred vigraha is sculpted adhering to ancient Shilpa Shastra canons with authentic Talamana iconometry, pure 24K gold foil vark, and water-sealed durability.
           </p>
         </div>
 
-        {/* Collections Tab Selector Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 mb-10">
+        {/* Collection Selector Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2.5 mb-10">
           {GOD_COLLECTIONS.map((col) => {
             const isActive = activeCollection === col.id;
             return (
@@ -160,7 +199,7 @@ export const DeityCatalogSection: React.FC<DeityCatalogSectionProps> = ({
               >
                 <div className="flex items-center justify-between w-full mb-1">
                   <span className={cn('text-[9px] uppercase tracking-wider font-serif font-bold', isActive ? 'text-[#F3E5AB]' : 'text-[#A67C52]')}>
-                    {col.id === 'all' ? '34 Idols' : col.subtitle.split('&')[0]}
+                    {col.id === 'all' ? `${sourceProducts.length} Idols` : col.subtitle.split('&')[0]}
                   </span>
                   {isActive && <Check className="w-3.5 h-3.5 text-[#D4AF37]" />}
                 </div>
@@ -181,24 +220,47 @@ export const DeityCatalogSection: React.FC<DeityCatalogSectionProps> = ({
               Filter Deity:
             </span>
             {[
-              { label: 'All', value: 'All' },
-              { label: 'Krishna & Radha', value: 'Krishna & Radha' },
-              { label: 'Buddha', value: 'Buddha' },
-              { label: 'Shiva & Parivar', value: 'Shiva & Parivar' },
-              { label: 'Ganesha', value: 'Ganesha' },
-              { label: 'Durga, Hanuman & Shyam', value: 'Durga & Hanuman & Shyam' },
+              { id: 'All', label: 'All Deities' },
+              { id: 'Krishna & Radha', label: 'Krishna & Radha' },
+              { id: 'Buddha', label: 'Buddha' },
+              { id: 'Shiva & Parivar', label: 'Shiv Parivar' },
+              { id: 'Ganesha', label: 'Ganesha' },
+              { id: 'Durga & Hanuman & Shyam', label: 'Durga / Hanuman / Shyam' },
             ].map((btn) => (
               <button
-                key={btn.value}
-                onClick={() => setSelectedDeity(btn.value)}
+                key={btn.id}
+                onClick={() => setSelectedDeity(btn.id)}
                 className={cn(
-                  'px-3 py-1 text-xs rounded-full font-serif transition-colors',
-                  selectedDeity === btn.value
-                    ? 'bg-[#8B5A2B] text-white font-semibold shadow-2xs'
-                    : 'bg-[#FFFDF5] text-[#5C5248] hover:bg-white border border-[#D4AF37]/30'
+                  'px-3 py-1 text-xs font-serif rounded-full transition-all border',
+                  selectedDeity === btn.id
+                    ? 'bg-[#8B5A2B] text-white border-[#8B5A2B] shadow-2xs font-bold'
+                    : 'bg-white text-[#5C5248] border-[#D4AF37]/30 hover:border-[#8B5A2B]'
                 )}
               >
                 {btn.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-serif font-semibold text-[#3A2D20]">Price:</span>
+            {[
+              { id: 'all', label: 'All' },
+              { id: 'under-25000', label: 'Under ₹25k' },
+              { id: '25000-50000', label: '₹25k–₹50k' },
+              { id: 'over-50000', label: 'Above ₹50k' },
+            ].map((range) => (
+              <button
+                key={range.id}
+                onClick={() => setPriceRange(range.id)}
+                className={cn(
+                  'px-3 py-1 text-xs font-serif rounded-full transition-all border',
+                  priceRange === range.id
+                    ? 'bg-[#8B5A2B] text-white border-[#8B5A2B] font-bold'
+                    : 'bg-white text-[#5C5248] border-[#D4AF37]/30 hover:border-[#8B5A2B]'
+                )}
+              >
+                {range.label}
               </button>
             ))}
           </div>
@@ -218,8 +280,39 @@ export const DeityCatalogSection: React.FC<DeityCatalogSectionProps> = ({
           </div>
         </div>
 
-        {/* Murtis Cards Grid (All 34 Idols) */}
-        {filteredProducts.length === 0 ? (
+        {/* Loading Skeletons */}
+        {loading && sourceProducts.length === 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-pulse">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="bg-[#F5F2ED] rounded-md border border-[#D4AF37]/20 h-96 flex flex-col justify-between p-4">
+                <div className="h-64 bg-[#EAE4DC] rounded-sm w-full" />
+                <div className="space-y-2 mt-4">
+                  <div className="h-3 bg-[#EAE4DC] rounded-xs w-1/3" />
+                  <div className="h-4 bg-[#EAE4DC] rounded-xs w-3/4" />
+                  <div className="h-4 bg-[#EAE4DC] rounded-xs w-1/2" />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && sourceProducts.length === 0 && (
+          <div className="text-center py-16 bg-[#FFFDF5] rounded-xl border border-red-200 p-6 space-y-4">
+            <AlertCircle className="w-8 h-8 text-red-600 mx-auto" />
+            <p className="text-sm font-serif text-red-700">{error}</p>
+            <button
+              onClick={loadProducts}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[#8B5A2B] text-white text-xs font-serif rounded-sm hover:bg-[#724923] transition-colors"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>Retry Loading Catalog</span>
+            </button>
+          </div>
+        )}
+
+        {/* Murtis Cards Grid */}
+        {(!loading || sourceProducts.length > 0) && filteredProducts.length === 0 ? (
           <div className="text-center py-16 bg-[#FFFDF5] rounded-xl border border-[#D4AF37]/20">
             <p className="text-base font-serif text-[#5C5248]">No murtis match your search filter.</p>
             <button
@@ -227,75 +320,79 @@ export const DeityCatalogSection: React.FC<DeityCatalogSectionProps> = ({
                 setActiveCollection('all');
                 setSelectedDeity('All');
                 setSearchQuery('');
+                setPriceRange('all');
               }}
               className="mt-3 text-xs font-serif text-[#8B5A2B] underline font-bold"
             >
-              Reset Filters to View All 34 Idols
+              Reset Filters to View All {sourceProducts.length} Idols
             </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredProducts.map((product) => (
-              <article
-                key={product.id}
-                onClick={() => onSelectProduct(product.slug)}
-                className="group bg-[#FFFDF5] border border-[#D4AF37]/25 rounded-md overflow-hidden shadow-2xs hover:shadow-xl transition-all duration-300 flex flex-col cursor-pointer"
-              >
-                {/* Image Container */}
-                <div className="relative h-72 w-full bg-[#F5F2ED] overflow-hidden">
-                  <img
-                    src={product.images[0]?.src}
-                    alt={product.name}
-                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+            {filteredProducts.map((product) => {
+              const imageSrc = getProductImageUrl(product.images?.[0]) || '/static/idols/swarna-vastra-kamadhenu-krishna.png';
+              return (
+                <article
+                  key={product.id}
+                  onClick={() => onSelectProduct(product.slug)}
+                  className="group bg-[#FFFDF5] border border-[#D4AF37]/25 rounded-md overflow-hidden shadow-2xs hover:shadow-xl transition-all duration-300 flex flex-col cursor-pointer"
+                >
+                  {/* Image Container */}
+                  <div className="relative h-72 w-full bg-[#F5F2ED] overflow-hidden">
+                    <img
+                      src={imageSrc}
+                      alt={product.name}
+                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
 
-                  {/* SKU Tag */}
-                  <div className="absolute top-3 left-3 bg-[#FFFDF5]/90 backdrop-blur-xs px-2.5 py-0.5 rounded-xs border border-[#D4AF37]/30 text-[10px] font-serif font-bold text-[#8B5A2B]">
-                    {product.sku}
-                  </div>
-
-                  {/* Discount Badge if any */}
-                  {product.discountBadge && (
-                    <div className="absolute top-3 right-3 bg-[#8B5A2B] text-white px-2 py-0.5 rounded-xs text-[9px] font-serif uppercase tracking-wider font-semibold">
-                      {product.discountBadge}
+                    {/* SKU Tag */}
+                    <div className="absolute top-3 left-3 bg-[#FFFDF5]/90 backdrop-blur-xs px-2.5 py-0.5 rounded-xs border border-[#D4AF37]/30 text-[10px] font-serif font-bold text-[#8B5A2B]">
+                      {product.sku}
                     </div>
-                  )}
-                </div>
 
-                {/* Body Content */}
-                <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
-                  <div>
-                    <span className="text-[10px] tracking-[0.2em] font-serif uppercase text-[#A67C52] font-semibold block mb-0.5">
-                      {product.deity}
-                    </span>
-                    <h3 className="font-serif text-base font-bold text-[#3A2D20] group-hover:text-[#8B5A2B] transition-colors leading-tight line-clamp-2">
-                      {product.name}
-                    </h3>
-                    <p className="mt-1.5 text-xs text-[#5C5248] line-clamp-2 font-sans leading-relaxed">
-                      {product.shortDescription}
-                    </p>
+                    {/* Discount Badge if any */}
+                    {product.discountBadge && (
+                      <div className="absolute top-3 right-3 bg-[#8B5A2B] text-white px-2 py-0.5 rounded-xs text-[9px] font-serif uppercase tracking-wider font-semibold">
+                        {product.discountBadge}
+                      </div>
+                    )}
                   </div>
 
-                  {/* Pricing and Action */}
-                  <div className="pt-3 border-t border-[#D4AF37]/20 flex items-center justify-between text-xs font-serif">
+                  {/* Body Content */}
+                  <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
                     <div>
-                      <span className="text-[9px] uppercase tracking-wider text-[#8A8177] block">
-                        Offering
+                      <span className="text-[10px] tracking-[0.2em] font-serif uppercase text-[#A67C52] font-semibold block mb-0.5">
+                        {product.deity}
                       </span>
-                      <span className="text-base font-bold text-[#8B5A2B]">
-                        {formatCurrency(product.basePrice)}
-                      </span>
+                      <h3 className="font-serif text-base font-bold text-[#3A2D20] group-hover:text-[#8B5A2B] transition-colors leading-tight line-clamp-2">
+                        {product.name}
+                      </h3>
+                      <p className="mt-1.5 text-xs text-[#5C5248] line-clamp-2 font-sans leading-relaxed">
+                        {product.shortDescription}
+                      </p>
                     </div>
 
-                    <span className="text-[#8B5A2B] group-hover:translate-x-1 transition-transform inline-flex items-center gap-1 font-semibold text-xs">
-                      View Murti <ArrowRight className="w-3.5 h-3.5" />
-                    </span>
+                    {/* Pricing and Action */}
+                    <div className="pt-3 border-t border-[#D4AF37]/20 flex items-center justify-between text-xs font-serif">
+                      <div>
+                        <span className="text-[9px] uppercase tracking-wider text-[#8A8177] block">
+                          Offering
+                        </span>
+                        <span className="text-base font-bold text-[#8B5A2B]">
+                          {formatCurrency(product.basePrice)}
+                        </span>
+                      </div>
+
+                      <span className="text-[#8B5A2B] group-hover:translate-x-1 transition-transform inline-flex items-center gap-1 font-semibold text-xs">
+                        View Murti <ArrowRight className="w-3.5 h-3.5" />
+                      </span>
+                    </div>
                   </div>
-                </div>
-              </article>
-            ))}
+                </article>
+              );
+            })}
           </div>
         )}
       </div>

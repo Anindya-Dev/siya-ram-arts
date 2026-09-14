@@ -63,7 +63,7 @@ export const ProductStory: React.FC<ProductStoryProps> = ({ product }) => {
           <div className="lg:col-span-5 space-y-3">
             <div className="relative rounded-lg overflow-hidden border border-[#D4AF37]/30 shadow-md bg-[#1C1814]">
               <img
-                src={product.images[0]?.src || "/static/idols/swarna-vastra-krishna.png"}
+                src={product.images[0]?.url || "/static/idols/swarna-vastra-krishna.png"}
                 alt={product.name}
                 className="w-full h-[380px] object-contain p-4 bg-[#110D0A]"
               />

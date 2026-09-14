@@ -232,6 +232,7 @@ export default function App() {
             onAddToCart={handleAddToCart}
             onRequestConsecration={handleOpenConsecration}
             onSelectProduct={handleNavigateProduct}
+            onReturnToCatalog={() => setCurrentPage('home')}
           />
         )}
         {currentPage === 'admin' && (

@@ -29,14 +29,14 @@ export function generateOrganizationSchema() {
 }
 
 export function generateProductSchema(product: Product) {
-  const selectedVariant = product.variants.find(v => v.id === product.selectedVariantId) || product.variants[0];
+  const selectedVariant = product.variants[0];
   const calculatedPrice = product.basePrice + (selectedVariant?.priceDelta || 0);
 
   return {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.name,
-    image: product.images.map(img => img.src),
+    image: product.images.map(img => img.url),
     description: product.longDescription,
     sku: product.sku,
     mpn: product.sku,
@@ -56,7 +56,7 @@ export function generateProductSchema(product: Product) {
       priceCurrency: 'INR',
       price: calculatedPrice.toString(),
       itemCondition: 'https://schema.org/NewCondition',
-      availability: selectedVariant?.stockCount > 0 
+      availability: (selectedVariant?.totalAvailableStock ?? 0) > 0
         ? 'https://schema.org/InStock' 
         : 'https://schema.org/OutOfStock',
       seller: {

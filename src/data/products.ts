@@ -1,5 +1,5 @@
 // src/data/products.ts
-import { Product, InventoryItem, Review } from '../types';
+import { Product, InventoryItem, Review, PaginatedResponse } from '../types';
 import { fetchApi } from '../lib/api.ts';
 
 export const ALL_REVIEWS: Review[] = [
@@ -53,16 +53,48 @@ export const ALL_REVIEWS: Review[] = [
   }
 ];
 
-export async function getLiveProducts(): Promise<Product[]> {
-  try {
-    return await fetchApi<Product[]>('/products/');
-  } catch (error) {
-    console.error("Failed to fetch live products from backend, falling back:", error);
-    return [];
-  }
+type ProductImage = Product['images'][number];
+
+export function getProductImageUrl(img?: ProductImage | string | null): string {
+  if (!img) return '';
+  if (typeof img === 'string') return img;
+  return img.url;
+}
+
+export interface GetProductsParams {
+  deity?: string;
+  material?: string;
+  search?: string;
+  featured_only?: boolean;
+  min_price?: number;
+  max_price?: number;
+  page?: number;
+  limit?: number;
+}
+
+export async function getLiveProductsPaginated(
+  params: GetProductsParams = {}
+): Promise<PaginatedResponse<Product>> {
+  const query = new URLSearchParams();
+  if (params.deity) query.set('deity', params.deity);
+  if (params.material) query.set('material', params.material);
+  if (params.search) query.set('search', params.search);
+  if (params.featured_only) query.set('featured_only', 'true');
+  if (params.min_price !== undefined) query.set('min_price', String(params.min_price));
+  if (params.max_price !== undefined) query.set('max_price', String(params.max_price));
+  query.set('page', String(params.page || 1));
+  query.set('limit', String(params.limit || 50));
+
+  return await fetchApi<PaginatedResponse<Product>>(`/products?${query.toString()}`);
+}
+
+export async function getLiveProducts(limit = 50): Promise<Product[]> {
+  const res = await getLiveProductsPaginated({ limit });
+  return res.items || [];
 }
 
 export const PRODUCTS: Product[] = []; 
+
 
 export const COMPANIONS = [
   {
