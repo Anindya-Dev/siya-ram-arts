@@ -20,7 +20,7 @@ interface Address {
 
 interface CheckoutResponse {
   order: { id: string; orderNumber: string; totalAmount: number };
-  razorpay: { razorpayOrderId: string; amount: number; currency: string; receipt: string };
+  razorpay: { razorpayOrderId?: string; razorpay_order_id?: string; amount: number; currency: string; receipt: string };
 }
 
 declare global {
@@ -89,10 +89,11 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, items, get
   const verifyPayment = async (checkout: CheckoutResponse, payment: { razorpay_payment_id: string; razorpay_signature: string }) => {
     const token = await getToken();
     if (!token) throw new Error('Your session has expired. Please sign in again.');
+    const rzpOrderId = checkout.razorpay.razorpayOrderId || checkout.razorpay.razorpay_order_id || '';
     await fetchApi('/payments/verify', {
       method: 'POST', token, body: JSON.stringify({
         orderId: checkout.order.id,
-        razorpayOrderId: checkout.razorpay.razorpayOrderId,
+        razorpayOrderId: rzpOrderId,
         razorpayPaymentId: payment.razorpay_payment_id,
         razorpaySignature: payment.razorpay_signature,
       }),
@@ -113,7 +114,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, items, get
           shippingAddressId,
         }),
       });
-      if (checkout.razorpay.razorpayOrderId.startsWith('order_test_')) {
+      const rzpOrderId = checkout.razorpay.razorpayOrderId || checkout.razorpay.razorpay_order_id || '';
+      if (rzpOrderId.startsWith('order_test_')) {
         await verifyPayment(checkout, { razorpay_payment_id: `pay_test_${Date.now()}`, razorpay_signature: 'test_signature' });
         return;
       }
@@ -121,7 +123,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, items, get
       if (!key) throw new Error('Razorpay is not configured. Please contact Siya Ram Arts support.');
       if (!(await loadRazorpay()) || !window.Razorpay) throw new Error('Unable to load Razorpay checkout. Please check your connection and try again.');
       new window.Razorpay({
-        key, amount: checkout.razorpay.amount, currency: checkout.razorpay.currency, name: 'Siya Ram Arts', description: `Order ${checkout.order.orderNumber}`, order_id: checkout.razorpay.razorpayOrderId,
+        key, amount: checkout.razorpay.amount, currency: checkout.razorpay.currency, name: 'Siya Ram Arts', description: `Order ${checkout.order.orderNumber}`, order_id: rzpOrderId,
         handler: (payment: { razorpay_payment_id: string; razorpay_signature: string }) => { void verifyPayment(checkout, payment).catch((requestError) => setError(requestError.message)); },
         modal: { ondismiss: () => setLoading(false) },
       }).open();

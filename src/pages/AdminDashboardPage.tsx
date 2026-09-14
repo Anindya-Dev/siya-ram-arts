@@ -49,8 +49,9 @@ export const AdminDashboardPage: React.FC = () => {
     try {
       const token = await requestToken();
       if (!token) throw new Error('Your admin session has expired. Please sign in again.');
-      const admin = await fetchApi<{ isAdmin: boolean }>('/auth/verify-admin', { token });
-      if (!admin.isAdmin) { setAuthorized(false); return; }
+      const admin = await fetchApi<{ isAdmin?: boolean; is_admin?: boolean }>('/auth/verify-admin', { token });
+      const isAuthorized = Boolean(admin.isAdmin ?? admin.is_admin);
+      if (!isAuthorized) { setAuthorized(false); return; }
       setAuthorized(true);
       const [catalog, audit, ateliers] = await Promise.all([
         fetchApi<PaginatedResponse<Product>>('/products?limit=100', { token }),
@@ -81,11 +82,41 @@ export const AdminDashboardPage: React.FC = () => {
     const token = await requestToken();
     if (!token) throw new Error('Your admin session has expired.');
     const stockByLocation = await fetchApi<StockLocation[]>(`/inventory/variants/${item.variantId}`, { token });
-    const locationId = stockByLocation[0]?.locationId || locations[0]?.id;
-    if (!locationId) throw new Error('No active atelier location is available for this adjustment.');
     const delta = newCount - item.stock;
     if (delta === 0) return;
-    await fetchApi('/inventory/adjust', { method: 'POST', token, body: JSON.stringify({ variantId: item.variantId, locationId, delta, reason: reason.toLowerCase().includes('damaged') ? 'damage' : reason.toLowerCase().includes('fresh') ? 'restock' : 'manual_adjustment', note: reason }) });
+
+    const parsedReason = reason.toLowerCase().includes('damaged') ? 'damage' : reason.toLowerCase().includes('fresh') ? 'restock' : 'manual_adjustment';
+
+    if (delta > 0) {
+      const locationId = stockByLocation[0]?.locationId || locations[0]?.id;
+      if (!locationId) throw new Error('No active atelier location is available for this adjustment.');
+      await fetchApi('/inventory/adjust', {
+        method: 'POST', token,
+        body: JSON.stringify({ variantId: item.variantId, locationId, delta, reason: parsedReason, note: reason })
+      });
+    } else {
+      let toDeduct = Math.abs(delta);
+      for (const loc of stockByLocation) {
+        if (toDeduct <= 0) break;
+        const available = loc.availableCount ?? 0;
+        if (available <= 0) continue;
+        const deductAmount = Math.min(available, toDeduct);
+        await fetchApi('/inventory/adjust', {
+          method: 'POST', token,
+          body: JSON.stringify({ variantId: item.variantId, locationId: loc.locationId, delta: -deductAmount, reason: parsedReason, note: reason })
+        });
+        toDeduct -= deductAmount;
+      }
+      if (toDeduct > 0) {
+        const locationId = stockByLocation[0]?.locationId || locations[0]?.id;
+        if (locationId) {
+          await fetchApi('/inventory/adjust', {
+            method: 'POST', token,
+            body: JSON.stringify({ variantId: item.variantId, locationId, delta: -toDeduct, reason: parsedReason, note: reason })
+          });
+        }
+      }
+    }
     showToast(`Saved live stock adjustment for ${variantSize}.`);
     await loadDashboard();
   };

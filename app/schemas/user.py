@@ -28,3 +28,10 @@ class UserRead(UserBase):
     role: UserRole
     created_at: datetime.datetime
 
+
+class AdminVerifyResponse(BaseResponseSchema):
+    is_admin: bool
+    email: str
+    message: str
+
+

@@ -12,7 +12,7 @@ from app.models.address import Address
 from app.models.user import User
 from app.schemas.address import AddressCreate, AddressRead, AddressUpdate
 from app.schemas.common import MessageResponse
-from app.schemas.user import UserRead, UserUpdate
+from app.schemas.user import AdminVerifyResponse, UserRead, UserUpdate
 
 router = APIRouter(prefix="/auth", tags=["Authentication & Devotee Profiles"])
 
@@ -25,7 +25,7 @@ async def get_me(current_user: User = Depends(get_current_user)):
     return UserRead.model_validate(current_user)
 
 
-@router.get("/verify-admin")
+@router.get("/verify-admin", response_model=AdminVerifyResponse)
 async def verify_admin(current_user: User = Depends(get_current_user)):
     """
     Double-gate admin check:
@@ -46,12 +46,11 @@ async def verify_admin(current_user: User = Depends(get_current_user)):
 
     is_admin = has_clerk_role and in_whitelist
 
-    return {
-        "is_admin": is_admin,
-        "email": user_email,
-        # Do not expose which gate failed — security through obscurity
-        "message": "Access granted" if is_admin else "Access denied",
-    }
+    return AdminVerifyResponse(
+        is_admin=is_admin,
+        email=user_email,
+        message="Access granted" if is_admin else "Access denied",
+    )
 
 
 @router.patch("/me", response_model=UserRead)

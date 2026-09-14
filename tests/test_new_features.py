@@ -1,5 +1,6 @@
 import pytest
 import datetime
+import uuid
 from fastapi.testclient import TestClient
 from sqlalchemy import select
 
@@ -523,6 +524,100 @@ async def test_admin_invoice_regenerate_endpoint(db_session):
 
     finally:
         app.dependency_overrides.clear()
+
+
+@pytest.mark.asyncio
+async def test_verify_admin_and_checkout_camelcase(db_session, client):
+    """
+    Verifies that /auth/verify-admin emits isAdmin (camelCase) and
+    /orders/checkout emits razorpayOrderId (camelCase) to ensure frontend compatibility.
+    """
+    original_admin_emails = settings.ADMIN_EMAILS
+    settings.ADMIN_EMAILS = "acharya@siyaramarts.com"
+
+    try:
+        # 1. Test verify-admin
+        admin = User(
+            id=str(uuid.uuid4()),
+            clerk_user_id="clerk_admin_verify_test",
+            email="acharya@siyaramarts.com",
+            role=UserRole.ADMIN,
+        )
+        db_session.add(admin)
+        await db_session.commit()
+
+        headers = {"Authorization": f"Bearer test-token-{admin.clerk_user_id}-admin"}
+        res = await client.get("/api/v1/auth/verify-admin", headers=headers)
+        assert res.status_code == 200
+        data = res.json()
+        assert "isAdmin" in data, f"Expected 'isAdmin' in response: {data}"
+        assert data["isAdmin"] is True
+
+        # 2. Test checkout returns razorpayOrderId
+        loc = Location(
+            id=str(uuid.uuid4()),
+            code="JPR-CHK",
+            name="Jaipur Test Atelier",
+            address="Test",
+            city="Jaipur",
+            state="Rajasthan",
+            is_active=True,
+        )
+        prod = Product(
+            id=str(uuid.uuid4()),
+            sku="SRA-CHK-01",
+            slug="chk-prod-01",
+            name="Test Checkout Murti",
+            deity="Ganesha",
+            material="Marble",
+            base_price=5000,
+        )
+        variant = ProductVariant(
+            id=str(uuid.uuid4()),
+            product_id=prod.id,
+            sku="SRA-CHK-01-V1",
+            size="12-inch",
+            material="Marble",
+            base_price=5000,
+            price_delta=0,
+        )
+        inv = InventoryItem(
+            id=str(uuid.uuid4()),
+            variant_id=variant.id,
+            location_id=loc.id,
+            stock_count=10,
+            reserved_count=0,
+            low_stock_threshold=2,
+        )
+        addr = Address(
+            id=str(uuid.uuid4()),
+            user_id=admin.id,
+            full_name="Acharya Sharma",
+            phone="+919829012345",
+            address_line1="Johari Bazaar",
+            city="Jaipur",
+            state="Rajasthan",
+            state_code="08",
+            postal_code="302003",
+            country="India",
+            is_default=True,
+        )
+        db_session.add_all([loc, prod, variant, inv, addr])
+        await db_session.commit()
+
+        checkout_payload = {
+            "items": [{"variantId": variant.id, "quantity": 1}],
+            "shippingAddressId": addr.id,
+        }
+        res = await client.post("/api/v1/orders/checkout", json=checkout_payload, headers=headers)
+        assert res.status_code == 201, res.text
+        chk_data = res.json()
+        assert "razorpay" in chk_data
+        assert "razorpayOrderId" in chk_data["razorpay"], f"Expected 'razorpayOrderId' in: {chk_data['razorpay']}"
+        assert chk_data["razorpay"]["razorpayOrderId"].startswith("order_")
+    finally:
+        settings.ADMIN_EMAILS = original_admin_emails
+
 
 
 

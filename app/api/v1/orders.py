@@ -12,9 +12,11 @@ from app.models.user import User, UserRole
 from app.schemas.common import MessageResponse, PaginatedResponse
 from app.schemas.order import (
     CheckoutRequest,
+    CheckoutResponse,
     OrderDetailRead,
     OrderRead,
     OrderStatusUpdate,
+    RazorpayOrderInfo,
     ShipmentRead,
 )
 from app.schemas.payment import RazorpayOrderResponse
@@ -23,7 +25,7 @@ from app.services.order_service import OrderService
 router = APIRouter(prefix="/orders", tags=["Orders & Checkout"])
 
 
-@router.post("/checkout", status_code=status.HTTP_201_CREATED)
+@router.post("/checkout", response_model=CheckoutResponse, status_code=status.HTTP_201_CREATED)
 async def checkout(
     data: CheckoutRequest,
     current_user: User = Depends(get_current_user),
@@ -41,15 +43,15 @@ async def checkout(
         customer_notes=data.customer_notes,
     )
 
-    return {
-        "order": OrderRead.model_validate(order),
-        "razorpay": {
-            "razorpay_order_id": razorpay_order.get("id"),
-            "amount": razorpay_order.get("amount"),
-            "currency": "INR",
-            "receipt": razorpay_order.get("receipt"),
-        },
-    }
+    return CheckoutResponse(
+        order=OrderRead.model_validate(order),
+        razorpay=RazorpayOrderInfo(
+            razorpay_order_id=str(razorpay_order.get("id") or ""),
+            amount=int(razorpay_order.get("amount") or 0),
+            currency="INR",
+            receipt=str(razorpay_order.get("receipt") or ""),
+        ),
+    )
 
 
 @router.get("", response_model=PaginatedResponse[OrderRead])

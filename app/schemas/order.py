@@ -62,3 +62,16 @@ class OrderStatusUpdate(BaseResponseSchema):
     status: OrderStatus
     reason: Optional[str] = None
 
+
+class RazorpayOrderInfo(BaseResponseSchema):
+    razorpay_order_id: str
+    amount: int
+    currency: str = "INR"
+    receipt: Optional[str] = None
+
+
+class CheckoutResponse(BaseResponseSchema):
+    order: OrderRead
+    razorpay: RazorpayOrderInfo
+
+
