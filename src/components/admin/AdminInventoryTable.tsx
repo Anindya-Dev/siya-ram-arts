@@ -2,16 +2,18 @@ import React from 'react';
 import { InventoryItem } from '../../types';
 import { formatCurrency, cn } from '../../lib/utils';
 import { StockBadge } from '../ui/StockBadge';
-import { SlidersHorizontal, ChevronRight, AlertCircle } from 'lucide-react';
+import { SlidersHorizontal, Trash2 } from 'lucide-react';
 
 interface AdminInventoryTableProps {
   items: InventoryItem[];
   onOpenAdjuster: (item: InventoryItem) => void;
+  onDelete: (item: InventoryItem) => void;
 }
 
 export const AdminInventoryTable: React.FC<AdminInventoryTableProps> = ({
   items,
   onOpenAdjuster,
+  onDelete,
 }) => {
   return (
     <div className="bg-[#FFFDF5] border border-[#D4AF37]/25 rounded-lg shadow-2xs overflow-hidden">
@@ -157,6 +159,13 @@ export const AdminInventoryTable: React.FC<AdminInventoryTableProps> = ({
                     >
                       <SlidersHorizontal className="w-3 h-3" />
                       <span>Quick Adjust</span>
+                    </button>
+                    <button
+                      onClick={() => onDelete(item)}
+                      className="ml-2 p-1.5 rounded-sm text-[#A34D3D] hover:bg-[#A34D3D]/10 border border-[#A34D3D]/20"
+                      aria-label={`Delete ${item.name}`}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </td>
                 </tr>

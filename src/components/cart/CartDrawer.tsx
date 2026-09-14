@@ -7,6 +7,9 @@ import { Trash2, CheckCircle, ShoppingBag, Minus, Plus } from 'lucide-react';
 export interface CartItem {
   id: string;
   productId: string;
+  variantId: string;
+  reservationId?: string;
+  reservedQuantity?: number;
   name: string;
   image: string;
   size: string;
@@ -23,6 +26,7 @@ interface CartDrawerProps {
   onUpdateQuantity: (id: string, newQty: number) => void;
   onRemoveItem: (id: string) => void;
   onCheckout: () => void;
+  checkoutDisabled?: boolean;
 }
 
 export const CartDrawer: React.FC<CartDrawerProps> = ({
@@ -32,6 +36,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   onUpdateQuantity,
   onRemoveItem,
   onCheckout,
+  checkoutDisabled = false,
 }) => {
   const subtotal = items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
 
@@ -66,6 +71,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               size="lg"
               fullWidth
               onClick={onCheckout}
+              disabled={checkoutDisabled}
               className="font-serif uppercase tracking-wider font-bold text-sm shadow-md"
             >
               Proceed to Checkout ({formatCurrency(subtotal)})

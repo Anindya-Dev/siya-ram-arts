@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useAuth, useClerk } from '@clerk/clerk-react';
 import { X, Send, Sparkles, MessageSquare } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { getCustomIdolWhatsAppUrl, WhatsAppConfig } from '../../lib/whatsapp';
+import { fetchApi } from '../../lib/api';
 
 interface CustomIdolModalProps {
   isOpen: boolean;
@@ -9,12 +11,20 @@ interface CustomIdolModalProps {
 }
 
 export const CustomIdolModal: React.FC<CustomIdolModalProps> = ({ isOpen, onClose }) => {
+  const { getToken } = useAuth();
+  const { openSignIn } = useClerk();
   const [deity, setDeity] = useState('Shri Krishna');
   const [customDeity, setCustomDeity] = useState('');
   const [size, setSize] = useState('18-inch (1.5 ft)');
   const [material, setMaterial] = useState('Chemical Resin (White Stone Finish)');
   const [location, setLocation] = useState('');
   const [notes, setNotes] = useState('');
+  const [customerName, setCustomerName] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [referenceNumber, setReferenceNumber] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
@@ -28,10 +38,36 @@ export const CustomIdolModal: React.FC<CustomIdolModalProps> = ({ isOpen, onClos
     notes,
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
-    onClose();
+    setSubmitting(true);
+    setError(null);
+    try {
+      const token = await getToken();
+      if (!token) {
+        openSignIn();
+        throw new Error('Please sign in to submit a custom order request.');
+      }
+      const result = await fetchApi<{ requestNumber: string }>('/custom-orders', {
+        method: 'POST', token, body: JSON.stringify({
+          deity: activeDeity,
+          requestedDimensions: size,
+          mediumPreference: material,
+          devoteeNotes: notes || undefined,
+          specifications: {
+            customerName,
+            customerPhone,
+            customerEmail,
+            deliveryLocation: location,
+          },
+        }),
+      });
+      setReferenceNumber(result.requestNumber);
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : 'Unable to submit your custom order request.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -66,6 +102,29 @@ export const CustomIdolModal: React.FC<CustomIdolModalProps> = ({ isOpen, onClos
             Specify your requirements below to generate a pre-formatted custom order template.
             Clicking send will connect you directly to our Jalandhar Master Carver on WhatsApp (<strong>{WhatsAppConfig.DISPLAY_PHONE}</strong>).
           </p>
+
+          {referenceNumber && (
+            <div className="p-3 rounded-md bg-green-50 border border-green-200 text-xs text-green-800">
+              Your custom order reference is <strong>{referenceNumber}</strong>. Our atelier will contact you with a quote and timeline.
+            </div>
+          )}
+          {error && <div className="p-3 rounded-md bg-red-50 border border-red-200 text-xs text-red-700">{error}</div>}
+
+          {/* Customer Contact */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-serif font-bold uppercase tracking-wider text-[#3A2D20] mb-1">Your Name *</label>
+              <input required value={customerName} onChange={(e) => setCustomerName(e.target.value)} className="w-full px-3 py-2 text-xs bg-white border border-[#D4AF37]/30 rounded-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-serif font-bold uppercase tracking-wider text-[#3A2D20] mb-1">Phone *</label>
+              <input required type="tel" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} className="w-full px-3 py-2 text-xs bg-white border border-[#D4AF37]/30 rounded-sm" />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-serif font-bold uppercase tracking-wider text-[#3A2D20] mb-1">Email *</label>
+              <input required type="email" value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} className="w-full px-3 py-2 text-xs bg-white border border-[#D4AF37]/30 rounded-sm" />
+            </div>
+          </div>
 
           {/* Deity Form */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -199,6 +258,9 @@ Please share pricing estimation, crafting timeframe, and Vastu guidance.`}
             <div className="flex items-center gap-2">
               <Button variant="secondary" size="sm" type="button" onClick={onClose}>
                 Cancel
+              </Button>
+              <Button variant="gold" size="sm" type="submit" disabled={submitting}>
+                {submitting ? 'Submitting…' : 'Submit Request'}
               </Button>
               <a
                 href={whatsappUrl}

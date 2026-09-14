@@ -15,7 +15,7 @@ interface QuickStockAdjusterProps {
     newCount: number,
     reason: string,
     notifyCarver: boolean
-  ) => void;
+  ) => Promise<void>;
 }
 
 export const QuickStockAdjuster: React.FC<QuickStockAdjusterProps> = ({
@@ -53,9 +53,13 @@ export const QuickStockAdjuster: React.FC<QuickStockAdjusterProps> = ({
     }
   };
 
-  const handleSave = () => {
-    onSaveStock(item.id, selectedSize, currentCount, reason, notifyCarver);
-    onClose();
+  const handleSave = async () => {
+    try {
+      await onSaveStock(item.id, selectedSize, currentCount, reason, notifyCarver);
+      onClose();
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Unable to save this stock adjustment.');
+    }
   };
 
   return (
@@ -72,7 +76,7 @@ export const QuickStockAdjuster: React.FC<QuickStockAdjusterProps> = ({
           <Button
             variant="gold"
             size="sm"
-            onClick={handleSave}
+            onClick={() => void handleSave()}
             className="font-serif uppercase tracking-wider font-semibold"
           >
             <Check className="w-4 h-4 mr-1.5" />
