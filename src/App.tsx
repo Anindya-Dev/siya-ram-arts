@@ -26,7 +26,7 @@ export default function App() {
 
   // Navigation
   const [currentPage, setCurrentPage] = useState<'home' | 'product' | 'admin' | 'terms' | 'privacy' | 'returns'>('home');
-  const [activeProductSlug, setActiveProductSlug] = useState('handcrafted-chemical-resin-ram-lalla');
+  const [activeProductSlug, setActiveProductSlug] = useState('');
 
   // Modals
   const [loginModalOpen, setLoginModalOpen] = useState(false);
@@ -41,45 +41,11 @@ export default function App() {
   }, [isLoaded, isSignedIn]);
 
   // Cart
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    {
-      id: 'cart-1',
-      productId: 'prod-ram-lalla-1',
-      name: 'Divya Shila Ram Lalla Vigraha',
-      image: '/static/idols/divya-shila-ram-lalla.png',
-      size: '12-inch',
-      material: 'Black Shila Resin',
-      ornamentation: '24K Gold Leaf Vark & Real Emerald Coloration',
-      unitPrice: 28500,
-      quantity: 1,
-    },
-  ]);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   // Wishlist
-  const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([
-    {
-      id: 'wish-1',
-      productId: 'prod-ram-lalla-1',
-      name: 'Divya Shila Ram Lalla Vigraha',
-      image: '/static/idols/divya-shila-ram-lalla.png',
-      price: 28500,
-    },
-    {
-      id: 'wish-2',
-      productId: 'prod-ganesha-1',
-      name: 'Siddhi Vinayaka Ganesha',
-      image: '/static/idols/siddhi-vinayaka-ganesha.png',
-      price: 18500,
-    },
-    {
-      id: 'wish-3',
-      productId: 'prod-ganesha-3',
-      name: 'Subha Drishti Ganesha and Lakshmi',
-      image: '/static/idols/subha-drishti-ganesha-and-lakshmi.png',
-      price: 24500,
-    },
-  ]);
+  const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
 
   // Consecration Modal
@@ -301,10 +267,7 @@ export default function App() {
         items={cartItems}
         onUpdateQuantity={handleUpdateCartQty}
         onRemoveItem={handleRemoveCartItem}
-        onCheckout={() => {
-          setIsCartOpen(false);
-          handleOpenConsecration('Cart Order');
-        }}
+        onCheckout={() => setIsCartOpen(false)}
       />
 
       {/* Wishlist */}
