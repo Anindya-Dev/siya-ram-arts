@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useUser, useClerk } from '@clerk/clerk-react';
+import { useAuth, useUser, useClerk } from '@clerk/clerk-react';
 import { Navbar } from './components/common/Navbar';
 import { Footer } from './components/common/Footer';
 import { HomePage } from './pages/HomePage';
@@ -9,16 +9,19 @@ import { TermsOfServicePage } from './pages/TermsOfServicePage';
 import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
 import { ReturnsPolicyPage } from './pages/ReturnsPolicyPage';
 import { CartDrawer, CartItem } from './components/cart/CartDrawer';
+import { CheckoutModal } from './components/cart/CheckoutModal';
 import { WishlistDrawer, WishlistItem } from './components/cart/WishlistDrawer';
 import { ConsecrationModal } from './components/common/ConsecrationModal';
 import { LoginModal } from './components/common/LoginModal';
 import { TrackOrderModal } from './components/common/TrackOrderModal';
 import { CustomIdolModal } from './components/common/CustomIdolModal';
 import { Product } from './types';
+import { fetchApi } from './lib/api';
 
 export default function App() {
   const { user, isSignedIn, isLoaded } = useUser();
-  const { signOut } = useClerk();
+  const { signOut, openSignIn } = useClerk();
+  const { getToken } = useAuth();
 
   // Admin: ONLY via publicMetadata role set in Clerk Dashboard by the developer
   // Second gate: server-side ADMIN_EMAILS whitelist in .env (checked by /api/v1/auth/verify-admin)
@@ -43,6 +46,7 @@ export default function App() {
   // Cart
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   // Wishlist
   const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
@@ -85,60 +89,88 @@ export default function App() {
     setCurrentPage('home');
   };
 
-  const handleAddToCart = (
+  const handleAddToCart = async (
     product: Product,
     size: string,
     material: string,
     ornamentation: string,
     quantity: number
   ) => {
-    const variant = product.variants.find((v) => v.size.includes(size));
-    const ornamentationAdjustment = ornamentation.includes('Unpainted') ? -4500 : 0;
-    const unitPrice = product.basePrice + (variant?.priceDelta || 0) + ornamentationAdjustment;
+    const variant = product.variants.find((v) => v.size === size && v.material === material) || product.variants.find((v) => v.size === size);
+    if (!variant) {
+      window.alert('This murti variant is no longer available. Please select another size.');
+      return;
+    }
+    try {
+      const token = isSignedIn ? await getToken() : null;
+      const reservation = await fetchApi<{ id: string; quantity: number }>('/inventory/reserve', {
+        method: 'POST', token, body: JSON.stringify({ variantId: variant.id, quantity }),
+      });
 
-    setCartItems((prev) => [
-      ...prev,
-      {
-        id: `cart-${Date.now()}`,
-        productId: product.id,
-        name: product.name,
-        image: product.images[0]?.url || '',
-        size,
-        material,
-        ornamentation,
-        unitPrice,
-        quantity,
-      },
-    ]);
-    setIsCartOpen(true);
+      setCartItems((prev) => [
+        ...prev,
+        {
+          id: `cart-${Date.now()}`,
+          productId: product.id,
+          variantId: variant.id,
+          reservationId: reservation.id,
+          reservedQuantity: reservation.quantity,
+          name: product.name,
+          image: product.images[0]?.url || '',
+          size,
+          material,
+          ornamentation,
+          unitPrice: variant.basePrice,
+          quantity,
+        },
+      ]);
+      setIsCartOpen(true);
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : 'Unable to reserve this murti. Please try again.');
+    }
   };
 
-  const handleAddWishlistToCart = (item: WishlistItem) => {
-    setCartItems((prev) => [
-      ...prev,
-      {
-        id: `cart-${Date.now()}`,
-        productId: item.productId,
-        name: item.name,
-        image: item.image,
-        size: 'Standard',
-        material: 'Chemical Resin',
-        ornamentation: 'Standard',
-        unitPrice: item.price,
-        quantity: 1,
-      },
-    ]);
-    setIsCartOpen(true);
+  const handleAddWishlistToCart = (_item: WishlistItem) => {
+    window.alert('Please select a size and finish from the product page before adding this murti to your bag.');
   };
 
-  const handleUpdateCartQty = (id: string, newQty: number) => {
-    setCartItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, quantity: newQty } : item))
-    );
+  const handleUpdateCartQty = async (id: string, newQty: number) => {
+    const item = cartItems.find((entry) => entry.id === id);
+    if (!item || newQty < 1 || newQty === item.quantity) return;
+    try {
+      const token = isSignedIn ? await getToken() : null;
+      const reservation = await fetchApi<{ id: string; quantity: number }>('/inventory/reserve', {
+        method: 'POST', token, body: JSON.stringify({ variantId: item.variantId, quantity: newQty }),
+      });
+      if (item.reservationId) {
+        await fetchApi(`/inventory/release/${item.reservationId}`, { method: 'POST', token });
+      }
+      setCartItems((previous) => previous.map((entry) => entry.id === id ? {
+        ...entry, quantity: newQty, reservationId: reservation.id, reservedQuantity: reservation.quantity,
+      } : entry));
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : 'Unable to update the reserved quantity.');
+    }
   };
 
-  const handleRemoveCartItem = (id: string) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== id));
+  const handleRemoveCartItem = async (id: string) => {
+    const item = cartItems.find((entry) => entry.id === id);
+    setCartItems((prev) => prev.filter((entry) => entry.id !== id));
+    if (!item?.reservationId) return;
+    try {
+      const token = isSignedIn ? await getToken() : null;
+      await fetchApi(`/inventory/release/${item.reservationId}`, { method: 'POST', token });
+    } catch (error) {
+      console.warn('Could not release cart reservation:', error);
+    }
+  };
+
+  const handleCheckout = () => {
+    if (!isSignedIn) {
+      openSignIn();
+      return;
+    }
+    setCheckoutOpen(true);
   };
 
   const handleRemoveWishlistItem = (id: string) => {
@@ -267,7 +299,19 @@ export default function App() {
         items={cartItems}
         onUpdateQuantity={handleUpdateCartQty}
         onRemoveItem={handleRemoveCartItem}
-        onCheckout={() => setIsCartOpen(false)}
+        onCheckout={handleCheckout}
+      />
+
+      <CheckoutModal
+        isOpen={checkoutOpen}
+        items={cartItems}
+        getToken={getToken}
+        onClose={() => setCheckoutOpen(false)}
+        onSuccess={() => {
+          setCartItems([]);
+          setCheckoutOpen(false);
+          setIsCartOpen(false);
+        }}
       />
 
       {/* Wishlist */}
