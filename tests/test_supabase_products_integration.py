@@ -14,8 +14,11 @@ import uuid
 import pytest
 import pytest_asyncio
 
+import dotenv
+
 # ── Skip when not configured for Postgres ────────────────────────────────────
-DATABASE_URL = os.getenv("DATABASE_URL", "")
+env_cfg = dotenv.dotenv_values(".env")
+DATABASE_URL = os.getenv("SUPABASE_DATABASE_URL") or env_cfg.get("DATABASE_URL") or os.getenv("DATABASE_URL", "")
 
 if not DATABASE_URL or "sqlite" in DATABASE_URL.lower() or "postgresql" not in DATABASE_URL.lower():
     pytest.skip(
@@ -29,28 +32,33 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sess
 from app.main import app
 from app.core.database import get_db          # ← correct path (not app.db.database)
 from app.models.product import Product, ProductVariant
-from app.models.inventory import InventoryItem, Location
+from app.models.inventory import InventoryItem
+from app.models.location import Location
 
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
 
-@pytest_asyncio.fixture(scope="module")
+@pytest_asyncio.fixture(scope="function")
 async def pg_engine():
     """Create an async engine connected to Supabase Postgres."""
-    engine = create_async_engine(DATABASE_URL, echo=False)
+    engine = create_async_engine(
+        DATABASE_URL,
+        echo=False,
+        connect_args={"statement_cache_size": 0},
+    )
     yield engine
     await engine.dispose()
 
 
-@pytest_asyncio.fixture(scope="module")
+@pytest_asyncio.fixture(scope="function")
 async def pg_session(pg_engine):
-    """Provide an async session scoped to the test module."""
+    """Provide an async session scoped to the test function."""
     async_factory = async_sessionmaker(pg_engine, expire_on_commit=False)
     async with async_factory() as session:
         yield session
 
 
-@pytest_asyncio.fixture(scope="module")
+@pytest_asyncio.fixture(scope="function")
 async def seeded_product(pg_session: AsyncSession):
     """
     Seed a minimal product + variant + location + inventory into Supabase Postgres
@@ -153,11 +161,14 @@ async def seeded_product(pg_session: AsyncSession):
     await pg_session.commit()
 
 
-@pytest_asyncio.fixture(scope="module")
-async def override_db(pg_session):
+@pytest_asyncio.fixture(scope="function")
+async def override_db(pg_engine):
     """Override the FastAPI get_db dependency to use our Postgres session."""
+    session_maker = async_sessionmaker(pg_engine, expire_on_commit=False)
+
     async def _get_pg_db():
-        yield pg_session
+        async with session_maker() as session:
+            yield session
 
     app.dependency_overrides[get_db] = _get_pg_db
     yield
