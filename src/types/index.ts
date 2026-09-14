@@ -126,6 +126,7 @@ export interface InventoryItem {
   basePrice: number;
   status: 'In Stock' | 'Low Stock' | 'Mandir Reserved' | 'Out of Stock';
   variants: {
+    variantId?: string;
     size: string;
     stock: number;
     threshold: number;

@@ -20,7 +20,7 @@ export interface NewProductPayload {
 interface AddProductModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSaveProduct: (payload: NewProductPayload) => void;
+  onSaveProduct: (payload: NewProductPayload) => Promise<void>;
 }
 
 export const AddProductModal: React.FC<AddProductModalProps> = ({
@@ -78,7 +78,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
       alert('Please enter a product name');
@@ -89,7 +89,8 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
       return;
     }
 
-    onSaveProduct({
+    try {
+      await onSaveProduct({
       name,
       deity,
       sku,
@@ -102,11 +103,14 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
       longDescription,
       imageSrc: imageSrc || '/static/idols/swarna-vastra-kamadhenu-krishna.png',
       status,
-    });
+      });
 
-    // Reset form
-    setName('');
-    onClose();
+      // Reset form
+      setName('');
+      onClose();
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Unable to create this product.');
+    }
   };
 
   return (
@@ -136,7 +140,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
         </div>
 
         {/* Modal Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6 max-h-[80vh] overflow-y-auto">
+        <form onSubmit={(event) => void handleSubmit(event)} className="p-6 space-y-6 max-h-[80vh] overflow-y-auto">
           {/* 1. Name & Category */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
