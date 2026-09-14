@@ -1,7 +1,11 @@
 import React from 'react';
-import { Sparkles, ShieldCheck } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 
-export const Footer: React.FC = () => {
+interface FooterProps {
+  onNavigate?: (page: string) => void;
+}
+
+export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   return (
     <footer className="w-full bg-[#F5F2ED] border-t border-[#D4AF37]/20 pt-16 text-[#2D2D2D]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
@@ -128,8 +132,30 @@ export const Footer: React.FC = () => {
 
       {/* Natural Tones Sub-footer bar */}
       <div className="bg-[#FAF9F6] border-t border-[#D4AF37]/20 py-4 px-4 sm:px-10 flex flex-col sm:flex-row items-center justify-between gap-2 text-[10px] uppercase tracking-[0.2em] text-[#5C5248] font-bold">
-        <div>&copy; 2025 Siya Ram Arts Studio • Jalandhar, Punjab</div>
-        <div className="text-center">Secure Global Shipping • Insured Transit</div>
+        <div>&copy; 2026 Siya Ram Arts Studio &bull; Jaipur, Rajasthan</div>
+        <div className="flex items-center gap-4">
+          <button
+            id="footer-link-terms"
+            onClick={() => onNavigate?.('terms')}
+            className="hover:text-[#8B5A2B] transition-colors"
+          >
+            Terms
+          </button>
+          <button
+            id="footer-link-privacy"
+            onClick={() => onNavigate?.('privacy')}
+            className="hover:text-[#8B5A2B] transition-colors"
+          >
+            Privacy
+          </button>
+          <button
+            id="footer-link-returns"
+            onClick={() => onNavigate?.('returns')}
+            className="hover:text-[#8B5A2B] transition-colors"
+          >
+            Returns
+          </button>
+        </div>
         <div>Shilpa Shastra Authentic</div>
       </div>
     </footer>
