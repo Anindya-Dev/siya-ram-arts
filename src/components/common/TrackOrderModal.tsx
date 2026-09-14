@@ -11,6 +11,7 @@ import {
   ExternalLink,
   Loader2,
 } from 'lucide-react';
+import { fetchApi } from '../../lib/api';
 
 interface TrackingEvent {
   timestamp: string;
@@ -64,15 +65,9 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({ isOpen, onClos
     try {
       const endpoint =
         searchType === 'order'
-          ? `/api/v1/tracking/${inputValue.trim()}`
-          : `/api/v1/tracking/awb/${inputValue.trim()}`;
-
-      const res = await fetch(endpoint);
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.detail || 'Tracking information not found.');
-      }
-      const data: TrackingInfo = await res.json();
+          ? `/tracking/${encodeURIComponent(inputValue.trim())}`
+          : `/tracking/awb/${encodeURIComponent(inputValue.trim())}`;
+      const data = await fetchApi<TrackingInfo>(endpoint);
       setTrackingInfo(data);
     } catch (err: any) {
       setError(err.message || 'Something went wrong. Please try again.');
