@@ -61,15 +61,27 @@ async def verify_clerk_token(token: str) -> Dict[str, Any]:
         jwk_client = get_jwk_client()
         if jwk_client:
             signing_key = jwk_client.get_signing_key_from_jwt(token)
-            payload = jwt.decode(
-                token,
-                signing_key.key,
-                algorithms=["RS256"],
-                options={"verify_exp": True, "verify_aud": False},
-            )
+            decode_options = {
+                "verify_exp": True,
+                "verify_aud": bool(settings.CLERK_AUDIENCE),
+                "verify_iss": bool(settings.CLERK_ISSUER),
+            }
+            decode_kwargs = {
+                "algorithms": ["RS256"],
+                "options": decode_options,
+            }
+            if settings.CLERK_ISSUER:
+                decode_kwargs["issuer"] = settings.CLERK_ISSUER
+            if settings.CLERK_AUDIENCE:
+                decode_kwargs["audience"] = settings.CLERK_AUDIENCE
+            payload = jwt.decode(token, signing_key.key, **decode_kwargs)
             return payload
         else:
-            # Fallback or development secret verification
+            # No JWKS client available. Fail closed in production; only allow the
+            # local secret fallback for development/testing.
+            if is_prod:
+                logger.critical("CLERK_JWKS_URL is unavailable; refusing to verify JWTs in production.")
+                raise UnauthorizedError("Authentication provider is misconfigured.")
             secret = settings.CLERK_SECRET_KEY or "dev_fallback_secret"
             payload = jwt.decode(
                 token,

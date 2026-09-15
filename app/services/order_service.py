@@ -96,6 +96,15 @@ class OrderService:
             item_subtotal = item_unit_price * item_req.quantity
             subtotal += item_subtotal
 
+            image_url = None
+            if variant.product and variant.product.images:
+                for img in variant.product.images:
+                    if isinstance(img, dict) and img.get("isPrimary"):
+                        image_url = img.get("url")
+                        break
+                if not image_url and len(variant.product.images) > 0 and isinstance(variant.product.images[0], dict):
+                    image_url = variant.product.images[0].get("url")
+
             variant_snapshot = {
                 "sku": variant.sku,
                 "name": variant.product.name,
@@ -103,6 +112,7 @@ class OrderService:
                 "size": variant.size,
                 "material": variant.material,
                 "finish": variant.finish,
+                "image_url": image_url,
             }
 
             order_items_to_create.append(

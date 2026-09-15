@@ -2,18 +2,20 @@ import React from 'react';
 import { InventoryItem } from '../../types';
 import { formatCurrency, cn } from '../../lib/utils';
 import { StockBadge } from '../ui/StockBadge';
-import { SlidersHorizontal, Trash2 } from 'lucide-react';
+import { SlidersHorizontal, Trash2, Edit3 } from 'lucide-react';
 
 interface AdminInventoryTableProps {
   items: InventoryItem[];
   onOpenAdjuster: (item: InventoryItem) => void;
   onDelete: (item: InventoryItem) => void;
+  onEdit?: (item: InventoryItem) => void;
 }
 
 export const AdminInventoryTable: React.FC<AdminInventoryTableProps> = ({
   items,
   onOpenAdjuster,
   onDelete,
+  onEdit,
 }) => {
   return (
     <div className="bg-[#FFFDF5] border border-[#D4AF37]/25 rounded-lg shadow-2xs overflow-hidden">
@@ -153,6 +155,16 @@ export const AdminInventoryTable: React.FC<AdminInventoryTableProps> = ({
 
                   {/* Actions */}
                   <td className="py-4 px-4 text-right">
+                    {onEdit && (
+                      <button
+                        onClick={() => onEdit(item)}
+                        className="mr-2 px-2.5 py-1.5 rounded-sm bg-[#FFFDF5] hover:bg-[#F5F2ED] text-[#3A2D20] hover:text-[#8B5A2B] border border-[#D4AF37]/30 font-serif text-xs font-bold transition-all inline-flex items-center gap-1 shadow-2xs"
+                        title={`Edit details for ${item.name}`}
+                      >
+                        <Edit3 className="w-3 h-3 text-[#8B5A2B]" />
+                        <span>Edit</span>
+                      </button>
+                    )}
                     <button
                       onClick={() => onOpenAdjuster(item)}
                       className="px-3 py-1.5 rounded-sm bg-[#F5F2ED] hover:bg-[#8B5A2B] text-[#8B5A2B] hover:text-white border border-[#D4AF37]/30 font-serif text-xs font-bold transition-all inline-flex items-center gap-1 shadow-2xs"

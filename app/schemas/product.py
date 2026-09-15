@@ -21,7 +21,19 @@ class ProductVariantBase(BaseResponseSchema):
 
 
 class ProductVariantCreate(ProductVariantBase):
-    pass
+    stock: Optional[Dict[str, int]] = Field(default_factory=dict, description="Initial stock mapping by location code e.g. {'JPR': 4, 'KSH': 2}")
+
+
+class ProductVariantUpdateItem(BaseResponseSchema):
+    id: Optional[str] = None
+    size: str
+    material: str
+    finish: str = "Polished White Finish"
+    base_price: int = Field(..., gt=0)
+    price_delta: int = 0
+    sku: str
+    is_active: bool = True
+    stock: Optional[Dict[str, int]] = Field(default_factory=dict)
 
 
 class ProductVariantUpdate(BaseResponseSchema):
@@ -92,6 +104,7 @@ class ProductUpdate(BaseResponseSchema):
     images: Optional[List[Dict[str, Any]]] = None
     tags: Optional[List[str]] = None
     carver_quote: Optional[CarverQuote] = None
+    variants: Optional[List[ProductVariantUpdateItem]] = None
 
 
 class ProductRead(ProductBase):

@@ -1,6 +1,6 @@
 import datetime
 from typing import List, Optional
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -8,7 +8,9 @@ from sqlalchemy.orm import selectinload
 from app.core.database import get_db
 from app.core.errors import BusinessRuleViolationError, ResourceNotFoundError
 from app.core.security import get_current_user, require_staff_or_admin
-from app.models.inventory import InventoryItem
+from app.models.inventory import InventoryItem, LedgerReason, StockLedgerEntry
+from app.models.location import Location
+from app.models.order import OrderItem
 from app.models.product import Product, ProductVariant
 from app.models.user import User
 from app.schemas.common import MessageResponse, PaginatedResponse
@@ -19,6 +21,7 @@ from app.schemas.product import (
     ProductVariantCreate,
     ProductVariantRead,
 )
+from app.services.imagekit_service import ImageKitService
 
 router = APIRouter(prefix="/products", tags=["Products & Catalog"])
 
@@ -147,7 +150,7 @@ async def create_product(
     db: AsyncSession = Depends(get_db),
 ):
     """
-    Creates a new product with variants. Restricted to Staff and Admins.
+    Creates a new product with variants and optional initial stock. Restricted to Staff and Admins.
     """
     # Check slug uniqueness
     existing_stmt = select(Product).where(Product.slug == data.slug)
@@ -183,6 +186,11 @@ async def create_product(
     db.add(product)
     await db.flush()
 
+    # Query active locations for mapping location code -> location id
+    locs_res = await db.execute(select(Location))
+    loc_map = {loc.code: loc.id for loc in locs_res.scalars().all()}
+    actor_email = current_user.email or "admin@siyaramarts.com"
+
     for v in data.variants:
         variant = ProductVariant(
             product_id=product.id,
@@ -195,9 +203,33 @@ async def create_product(
             is_active=v.is_active,
         )
         db.add(variant)
+        await db.flush()
+
+        if v.stock:
+            for loc_code, qty in v.stock.items():
+                if qty > 0 and loc_code in loc_map:
+                    loc_id = loc_map[loc_code]
+                    inv_item = InventoryItem(
+                        variant_id=variant.id,
+                        location_id=loc_id,
+                        stock_count=qty,
+                        reserved_count=0,
+                        low_stock_threshold=2,
+                    )
+                    db.add(inv_item)
+                    ledger_entry = StockLedgerEntry(
+                        variant_id=variant.id,
+                        location_id=loc_id,
+                        delta=qty,
+                        reason=LedgerReason.RESTOCK,
+                        actor=actor_email,
+                        reference_id=f"INIT-{v.sku}",
+                        note="Initial stock creation",
+                    )
+                    db.add(ledger_entry)
 
     await db.flush()
-    # Reload with variants
+    # Reload with variants and inventory items
     stmt = (
         select(Product)
         .options(
@@ -208,7 +240,7 @@ async def create_product(
     reloaded = (await db.execute(stmt)).scalar_one()
     prod_read = ProductRead.model_validate(reloaded)
     for idx, variant in enumerate(reloaded.variants):
-        prod_read.variants[idx].total_available_stock = 0
+        prod_read.variants[idx].total_available_stock = _compute_variant_stock(variant)
     return prod_read
 
 
@@ -220,7 +252,7 @@ async def update_product(
     db: AsyncSession = Depends(get_db),
 ):
     """
-    Updates an existing product. Restricted to Staff and Admins.
+    Updates an existing product, synchronizing variants and deleting removed ImageKit files. Restricted to Staff and Admins.
     """
     stmt = (
         select(Product)
@@ -236,6 +268,109 @@ async def update_product(
         raise ResourceNotFoundError("Product", product_id)
 
     update_dict = data.model_dump(exclude_unset=True)
+
+    # 1. Handle image diffing and deletion of removed ImageKit images
+    if "images" in update_dict and update_dict["images"] is not None:
+        old_images = product.images or []
+        new_images = update_dict["images"]
+        new_file_ids = {
+            img.get("fileId") or img.get("file_id")
+            for img in new_images
+            if isinstance(img, dict) and (img.get("fileId") or img.get("file_id"))
+        }
+        for old_img in old_images:
+            if isinstance(old_img, dict):
+                old_file_id = old_img.get("fileId") or old_img.get("file_id")
+                old_url = old_img.get("url", "")
+                if old_file_id and not old_url.startswith("/static"):
+                    if old_file_id not in new_file_ids:
+                        ImageKitService.delete_file(old_file_id)
+
+    # 2. Handle variants sync
+    if "variants" in update_dict and update_dict["variants"] is not None:
+        incoming_variants = data.variants or []
+        locs_res = await db.execute(select(Location))
+        loc_map = {loc.code: loc.id for loc in locs_res.scalars().all()}
+        actor_email = current_user.email or "admin@siyaramarts.com"
+
+        existing_variant_map = {v.id: v for v in product.variants}
+        incoming_ids = {v.id for v in incoming_variants if v.id}
+
+        # Check variants to remove
+        for var_id, var_obj in existing_variant_map.items():
+            if var_id not in incoming_ids:
+                has_stock = any(
+                    (item.stock_count > 0 or item.reserved_count > 0)
+                    for item in var_obj.inventory_items
+                )
+                ledger_check = await db.execute(
+                    select(StockLedgerEntry.id).where(StockLedgerEntry.variant_id == var_id).limit(1)
+                )
+                has_ledger = ledger_check.scalar_one_or_none() is not None
+
+                order_check = await db.execute(
+                    select(OrderItem.id).where(OrderItem.variant_id == var_id).limit(1)
+                )
+                has_order = order_check.scalar_one_or_none() is not None
+
+                if has_stock or has_ledger or has_order:
+                    raise HTTPException(
+                        status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                        detail=f"Cannot delete variant '{var_obj.sku}' ({var_obj.size} / {var_obj.material}) because it has existing inventory, order history, or audit logs."
+                    )
+                else:
+                    await db.delete(var_obj)
+
+        # Update or add variants
+        for v_item in incoming_variants:
+            if v_item.id and v_item.id in existing_variant_map:
+                ev = existing_variant_map[v_item.id]
+                ev.size = v_item.size
+                ev.material = v_item.material
+                ev.finish = v_item.finish
+                ev.base_price = v_item.base_price
+                ev.price_delta = v_item.price_delta
+                ev.sku = v_item.sku
+                ev.is_active = v_item.is_active
+            else:
+                new_var = ProductVariant(
+                    product_id=product.id,
+                    sku=v_item.sku,
+                    size=v_item.size,
+                    material=v_item.material,
+                    finish=v_item.finish,
+                    base_price=v_item.base_price,
+                    price_delta=v_item.price_delta,
+                    is_active=v_item.is_active,
+                )
+                db.add(new_var)
+                await db.flush()
+
+                if v_item.stock:
+                    for loc_code, qty in v_item.stock.items():
+                        if qty > 0 and loc_code in loc_map:
+                            loc_id = loc_map[loc_code]
+                            inv = InventoryItem(
+                                variant_id=new_var.id,
+                                location_id=loc_id,
+                                stock_count=qty,
+                                reserved_count=0,
+                                low_stock_threshold=2,
+                            )
+                            db.add(inv)
+                            entry = StockLedgerEntry(
+                                variant_id=new_var.id,
+                                location_id=loc_id,
+                                delta=qty,
+                                reason=LedgerReason.RESTOCK,
+                                actor=actor_email,
+                                reference_id=f"INIT-{new_var.sku}",
+                                note="Initial stock creation",
+                            )
+                            db.add(entry)
+
+        del update_dict["variants"]
+
     if "carver_quote" in update_dict and update_dict["carver_quote"]:
         update_dict["carver_quote"] = data.carver_quote.model_dump() if data.carver_quote else None
 
@@ -243,8 +378,16 @@ async def update_product(
         setattr(product, key, value)
 
     await db.flush()
-    prod_read = ProductRead.model_validate(product)
-    for idx, variant in enumerate(product.variants):
+    reload_stmt = (
+        select(Product)
+        .options(
+            selectinload(Product.variants).selectinload(ProductVariant.inventory_items)
+        )
+        .where(Product.id == product.id)
+    )
+    reloaded_prod = (await db.execute(reload_stmt)).scalar_one()
+    prod_read = ProductRead.model_validate(reloaded_prod)
+    for idx, variant in enumerate(reloaded_prod.variants):
         prod_read.variants[idx].total_available_stock = _compute_variant_stock(variant)
     rating_val, review_cnt = await _compute_product_reviews_stats(db, product.id)
     prod_read.rating = rating_val
@@ -261,6 +404,7 @@ async def soft_delete_product(
     """
     Soft-deletes a product by timestamping deleted_at.
     Historical orders reference variants directly and will never fail.
+    Deletes ImageKit files for managed images (skips local /static paths and entries without fileId).
     """
     stmt = select(Product).where(Product.id == product_id, Product.deleted_at.is_(None))
     result = await db.execute(stmt)
@@ -268,6 +412,15 @@ async def soft_delete_product(
 
     if not product:
         raise ResourceNotFoundError("Product", product_id)
+
+    # Delete ImageKit files for managed images
+    if product.images:
+        for img in product.images:
+            if isinstance(img, dict):
+                file_id = img.get("fileId") or img.get("file_id")
+                url = img.get("url", "")
+                if file_id and not url.startswith("/static"):
+                    ImageKitService.delete_file(file_id)
 
     product.deleted_at = datetime.datetime.now(datetime.timezone.utc)
     await db.flush()

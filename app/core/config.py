@@ -37,11 +37,36 @@ class Settings(BaseSettings):
             return v
         return ["http://localhost:3000"]
 
+    # Allowed Host header values (TrustedHostMiddleware). Comma-separated or list.
+    ALLOWED_HOSTS: List[str] = [
+        "localhost",
+        "127.0.0.1",
+        "siyaramarts.com",
+        "www.siyaramarts.com",
+    ]
+
+    @field_validator("ALLOWED_HOSTS", mode="before")
+    @classmethod
+    def assemble_allowed_hosts(cls, v: Union[str, List[str]]) -> List[str]:
+        if isinstance(v, str) and not v.startswith("["):
+            return [h.strip() for h in v.split(",") if h.strip()]
+        elif isinstance(v, list):
+            return v
+        return ["localhost", "127.0.0.1", "siyaramarts.com", "www.siyaramarts.com"]
+
     # Clerk Authentication
     CLERK_SECRET_KEY: str = ""
     CLERK_JWKS_URL: str = "https://api.clerk.com/v1/jwks"
     CLERK_ISSUER: str = ""
+    CLERK_AUDIENCE: str = ""
     CLERK_WEBHOOK_SECRET: str = ""
+
+    # Rate limiting (in-memory per-IP, single-instance)
+    RATE_LIMIT_PER_MINUTE: int = 120
+    RATE_LIMIT_SENSITIVE_PER_MINUTE: int = 30
+
+    # Image upload constraints
+    MAX_IMAGE_UPLOAD_BYTES: int = 10 * 1024 * 1024  # 10 MB
 
     # Razorpay Payments
     RAZORPAY_KEY_ID: str = ""
