@@ -8,6 +8,13 @@ export interface FetchApiOptions extends RequestInit {
   token?: string | null;
 }
 
+export interface ImageUploadResult {
+  url: string;
+  fileId: string;
+  name: string;
+  size: number;
+}
+
 export async function fetchApi<T>(
   endpoint: string,
   options: FetchApiOptions = {},
@@ -18,9 +25,10 @@ export async function fetchApi<T>(
     ? cleanEndpoint
     : `${API_BASE_URL}${cleanEndpoint}`;
 
-  const defaultHeaders: Record<string, string> = {
-    'Content-Type': 'application/json',
-  };
+  const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
+  const defaultHeaders: Record<string, string> = isFormData
+    ? {}
+    : { 'Content-Type': 'application/json' };
 
   const authToken = token || options.token;
   if (authToken) {
@@ -50,4 +58,20 @@ export async function fetchApi<T>(
   }
 
   return response.json();
+}
+
+export async function uploadImage(
+  file: File,
+  token?: string | null
+): Promise<ImageUploadResult> {
+  const formData = new FormData();
+  formData.append('file', file);
+  return fetchApi<ImageUploadResult>(
+    '/images/upload',
+    {
+      method: 'POST',
+      body: formData,
+    },
+    token
+  );
 }

@@ -95,19 +95,15 @@ export interface Product {
   isFeaturedMasterpiece?: boolean;
   featuredOrder?: number;
   carverQuote?: CarverQuote;
-  // Images: backend stores and returns { url, alt, isPrimary }
-  // NOTE: the key is "url" (not "src"). Do NOT use "src".
   images: {
     url: string;
     alt: string;
     isPrimary?: boolean;
+    fileId?: string;
   }[];
   variants: ProductVariant[];
-  specifications: ProductSpecification;
-  // Seva guidelines are free-form key/value; shape below is illustrative.
-  sevaGuidelines: {
-    [key: string]: string;
-  };
+  specifications: ProductSpecification | Record<string, any>;
+  sevaGuidelines: Record<string, string>;
   tags: string[];
   createdAt?: string;
   updatedAt?: string;
