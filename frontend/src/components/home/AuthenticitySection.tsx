@@ -10,7 +10,7 @@ export const AuthenticitySection: React.FC = () => {
           <div className="lg:col-span-5 space-y-4">
             <div className="relative rounded-lg overflow-hidden border border-[#D4AF37]/30 shadow-lg bg-[#1F1A16]">
               <img
-                src="/static/idols/siya-ram-arts-brand-medallion.png"
+                src="/static/idols/siya-ram-arts-brand-medallion.webp"
                 alt="Siya Ram Arts Official Atelier Seal"
                 className="w-full h-[440px] object-contain object-center p-4 bg-[#FFFDF5]"
               />

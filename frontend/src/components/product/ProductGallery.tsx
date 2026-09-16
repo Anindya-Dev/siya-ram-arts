@@ -17,7 +17,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
   const [isZoomed, setIsZoomed] = useState(false);
   const [is360Mode, setIs360Mode] = useState(false);
 
-  const activeImage = images[activeImageIndex] || images[0] || { url: '/static/idols/swarna-vastra-kamadhenu-krishna.png', alt: 'Sacred Murti' };
+  const activeImage = images[activeImageIndex] || images[0] || { url: '/static/idols/swarna-vastra-kamadhenu-krishna.webp', alt: 'Sacred Murti' };
 
 
   return (

@@ -12,7 +12,7 @@ export const ALL_REVIEWS: Review[] = [
     content: 'We were anxious about ordering an 18-inch sacred idol for our new home in New Jersey. The wooden crate arrived with not a single scratch. When we unveiled the murti, the gentle innocence in Shri Ram\'s face moved my elderly parents to tears.',
     verifiedPatron: true,
     date: 'February 2025',
-    image: '/static/idols/cow-krishna-bansuri-idol.png',
+    image: '/static/idols/cow-krishna-bansuri-idol.webp',
     altarName: 'Anand & Radhika Parekh • London Mandir'
   },
   {
@@ -24,7 +24,7 @@ export const ALL_REVIEWS: Review[] = [
     content: 'I was looking for a durable, non-porous murti that can withstand regular worship and abhishek without fear of damage. The high-density chemical resin casting has phenomenal detail and crisp features. The gold vark work is delicate and water-sealed.',
     verifiedPatron: true,
     date: 'January 2025',
-    image: '/static/idols/white-marble-shvetambara-krishna.png',
+    image: '/static/idols/white-marble-shvetambara-krishna.webp',
     altarName: 'Dr. S. K. Narayanan • Bengaluru Sanctum'
   },
   {
@@ -36,7 +36,7 @@ export const ALL_REVIEWS: Review[] = [
     content: 'The artisans provided full photographic tracking of the carving progress over 3 weeks. It felt like watching divinity take physical shape. Exceptional packaging and truly museum worthy craft.',
     verifiedPatron: true,
     date: 'December 2024',
-    image: '/static/idols/sanjeevani-parvat-dhari-hanuman.png',
+    image: '/static/idols/sanjeevani-parvat-dhari-hanuman.webp',
     altarName: 'Pooja & Sameer Bajpai • San Jose, CA'
   },
   {
@@ -48,7 +48,7 @@ export const ALL_REVIEWS: Review[] = [
     content: 'The Talamana proportioning matches classical Manasara manuscripts. The Netronmeelana eye opening is divine and radiates serene shanti across the courtyard sanctum.',
     verifiedPatron: true,
     date: 'November 2024',
-    image: '/static/idols/kailash-shiv-parvati-ganesha.png',
+    image: '/static/idols/kailash-shiv-parvati-ganesha.webp',
     altarName: 'Maharaj Brajraj Singh • Jaipur Altar'
   }
 ];
@@ -57,8 +57,12 @@ type ProductImage = Product['images'][number];
 
 export function getProductImageUrl(img?: ProductImage | string | null): string {
   if (!img) return '';
-  if (typeof img === 'string') return img;
-  return img.url;
+  const url = typeof img === 'string' ? img : img.url;
+  // Automatically prefer high-performance WebP for local static idol assets
+  if (url && (url.startsWith('/static/idols/') || url.startsWith('/idols/')) && url.endsWith('.png')) {
+    return url.replace(/\.png$/, '.webp');
+  }
+  return url;
 }
 
 export interface GetProductsParams {
@@ -103,7 +107,7 @@ export const COMPANIONS = [
     material: 'Pure White Marble • 18 Inch',
     price: 45000,
     tag: 'MATCHING SWAROOP',
-    image: '/static/idols/white-marble-shvetambara-krishna.png',
+    image: '/static/idols/white-marble-shvetambara-krishna.webp',
     slug: 'white-marble-pure-shvetambara-krishna-murti',
   },
   {
@@ -112,7 +116,7 @@ export const COMPANIONS = [
     material: 'White Marble Composite • 14 Inch',
     price: 32000,
     tag: 'DEVOTEE FAVORITE',
-    image: '/static/idols/sanjeevani-parvat-dhari-hanuman.png',
+    image: '/static/idols/sanjeevani-parvat-dhari-hanuman.webp',
     slug: 'sanjeevani-parvat-dhari-hanuman-ji-idol',
   },
   {
@@ -121,7 +125,7 @@ export const COMPANIONS = [
     material: 'High-Gloss Marble Resin • 9 Inch',
     price: 22000,
     tag: 'SANCTUM FAVORITE',
-    image: '/static/idols/paan-patta-green-leaf-ganesha.png',
+    image: '/static/idols/paan-patta-green-leaf-ganesha.webp',
     slug: 'paan-patta-green-leaf-ganesha-idol',
   },
 ];

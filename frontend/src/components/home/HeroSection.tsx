@@ -90,7 +90,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           >
             {/* Background Atmosphere Image */}
             <img
-              src="/static/idols/swarna-vastra-kamadhenu-krishna.png"
+              src="/static/idols/swarna-vastra-kamadhenu-krishna.webp"
               alt="Swarna Vastra Kamadhenu Krishna Masterpiece"
               className="w-full h-full object-contain object-center group-hover:scale-105 transition-transform duration-700 p-6 bg-[#1A1613]"
               loading="eager"

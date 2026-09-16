@@ -16,7 +16,7 @@ export const GOD_COLLECTIONS = [
     subtitle: 'COMPLETE ATELIER INVENTORY',
     description: 'Explore the complete masterwork collection of 34 consecrated handcrafted murtis.',
     deityFilter: 'all',
-    bannerImage: '/static/idols/cow-krishna-bansuri-idol.png',
+    bannerImage: '/static/idols/cow-krishna-bansuri-idol.webp',
   },
   {
     id: 'krishna',
@@ -24,7 +24,7 @@ export const GOD_COLLECTIONS = [
     subtitle: 'MURALIDHAR & BAL GOPAL',
     description: 'Beautiful forms of Lord Krishna, Bal Gopal, Kamadhenu Krishna, and Swarna Vastra masterpieces.',
     deityFilter: 'Shri Krishna',
-    bannerImage: '/static/idols/swarna-vastra-kamadhenu-krishna.png',
+    bannerImage: '/static/idols/swarna-vastra-kamadhenu-krishna.webp',
   },
   {
     id: 'radha-krishna',
@@ -32,7 +32,7 @@ export const GOD_COLLECTIONS = [
     subtitle: 'PREMANANDA & YUGAL SARKAR',
     description: 'Divine Radha Krishna duo statues, Shvetambara pairs, Vrindavan kunja, and pastel elegance sculptures.',
     deityFilter: 'Radha Krishna',
-    bannerImage: '/static/idols/white-marble-radha-krishna-cow.png',
+    bannerImage: '/static/idols/white-marble-radha-krishna-cow.webp',
   },
   {
     id: 'buddha',
@@ -40,7 +40,7 @@ export const GOD_COLLECTIONS = [
     subtitle: 'SHANTI & MEDITATION',
     description: 'Peaceful Gautama Buddha statues in Dhyana mudra, Bhumisparsha mudra, and golden lotus thrones.',
     deityFilter: 'Gautam Buddha',
-    bannerImage: '/static/idols/dual-tone-bhumisparsha-buddha.png',
+    bannerImage: '/static/idols/dual-tone-bhumisparsha-buddha.webp',
   },
   {
     id: 'shiv-parivar',
@@ -48,7 +48,7 @@ export const GOD_COLLECTIONS = [
     subtitle: 'KAILASH SANCTUM BLESSINGS',
     description: 'Auspicious Shiv Parivar ensembles featuring Bhagwan Mahadev, Mata Parvati, and Bal Ganesha.',
     deityFilter: 'Shiv Parivar',
-    bannerImage: '/static/idols/kailash-shiv-parvati-ganesha.png',
+    bannerImage: '/static/idols/kailash-shiv-parvati-ganesha.webp',
   },
   {
     id: 'ganesha',
@@ -56,7 +56,7 @@ export const GOD_COLLECTIONS = [
     subtitle: 'VIGHNAHARTA & SIDDHIVINAYAK',
     description: 'Auspicious Ganesha statues for home threshold, Paan Patta green leaf backrest, and office sanctums.',
     deityFilter: 'Shri Ganesha',
-    bannerImage: '/static/idols/paan-patta-green-leaf-ganesha.png',
+    bannerImage: '/static/idols/paan-patta-green-leaf-ganesha.webp',
   },
   {
     id: 'durga-hanuman',
@@ -64,7 +64,7 @@ export const GOD_COLLECTIONS = [
     subtitle: 'SHAKTI, VIRATA & SEVA',
     description: 'Sherawali Durga Maa on golden tiger, Sanjeevani Hanuman Ji, and Khatu Shyam Ji Sheesh avatar.',
     deityFilter: 'Durga & Hanuman',
-    bannerImage: '/static/idols/sherawali-durga-maa-tiger.png',
+    bannerImage: '/static/idols/sherawali-durga-maa-tiger.webp',
   },
 ];
 
@@ -330,7 +330,7 @@ export const DeityCatalogSection: React.FC<DeityCatalogSectionProps> = ({
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredProducts.map((product) => {
-              const imageSrc = getProductImageUrl(product.images?.[0]) || '/static/idols/swarna-vastra-kamadhenu-krishna.png';
+              const imageSrc = getProductImageUrl(product.images?.[0]) || '/static/idols/swarna-vastra-kamadhenu-krishna.webp';
               return (
                 <article
                   key={product.id}
