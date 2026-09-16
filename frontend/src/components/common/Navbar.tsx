@@ -131,7 +131,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={onOpenCustomIdol}
               className="hover:text-[#8B5A2B] transition-colors py-1 flex items-center gap-1 font-semibold whitespace-nowrap"
             >
-              <Sparkle weight="fill" className="w-3 h-3 text-[#D4AF37]" />
               <span>Custom Idol</span>
             </button>
             <a
