@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, Sparkles, Filter, Check, RefreshCw, AlertCircle } from 'lucide-react';
+import { ArrowRight, Sparkle, Funnel, Check, ArrowClockwise, WarningCircle } from '@phosphor-icons/react';
 import { formatCurrency, cn } from '../../lib/utils';
 import { getLiveProducts, getProductImageUrl } from '../../data/products';
 import { Product } from '../../types';
@@ -16,7 +16,7 @@ export const GOD_COLLECTIONS = [
     subtitle: 'COMPLETE ATELIER INVENTORY',
     description: 'Explore the complete masterwork collection of 34 consecrated handcrafted murtis.',
     deityFilter: 'all',
-    bannerImage: '/static/idols/cow-krishna-bansuri-idol.png',
+    bannerImage: '/static/idols/cow-krishna-bansuri-idol.webp',
   },
   {
     id: 'krishna',
@@ -24,7 +24,7 @@ export const GOD_COLLECTIONS = [
     subtitle: 'MURALIDHAR & BAL GOPAL',
     description: 'Beautiful forms of Lord Krishna, Bal Gopal, Kamadhenu Krishna, and Swarna Vastra masterpieces.',
     deityFilter: 'Shri Krishna',
-    bannerImage: '/static/idols/swarna-vastra-kamadhenu-krishna.png',
+    bannerImage: '/static/idols/swarna-vastra-kamadhenu-krishna.webp',
   },
   {
     id: 'radha-krishna',
@@ -32,7 +32,7 @@ export const GOD_COLLECTIONS = [
     subtitle: 'PREMANANDA & YUGAL SARKAR',
     description: 'Divine Radha Krishna duo statues, Shvetambara pairs, Vrindavan kunja, and pastel elegance sculptures.',
     deityFilter: 'Radha Krishna',
-    bannerImage: '/static/idols/white-marble-radha-krishna-cow.png',
+    bannerImage: '/static/idols/white-marble-radha-krishna-cow.webp',
   },
   {
     id: 'buddha',
@@ -40,7 +40,7 @@ export const GOD_COLLECTIONS = [
     subtitle: 'SHANTI & MEDITATION',
     description: 'Peaceful Gautama Buddha statues in Dhyana mudra, Bhumisparsha mudra, and golden lotus thrones.',
     deityFilter: 'Gautam Buddha',
-    bannerImage: '/static/idols/dual-tone-bhumisparsha-buddha.png',
+    bannerImage: '/static/idols/dual-tone-bhumisparsha-buddha.webp',
   },
   {
     id: 'shiv-parivar',
@@ -48,7 +48,7 @@ export const GOD_COLLECTIONS = [
     subtitle: 'KAILASH SANCTUM BLESSINGS',
     description: 'Auspicious Shiv Parivar ensembles featuring Bhagwan Mahadev, Mata Parvati, and Bal Ganesha.',
     deityFilter: 'Shiv Parivar',
-    bannerImage: '/static/idols/kailash-shiv-parvati-ganesha.png',
+    bannerImage: '/static/idols/kailash-shiv-parvati-ganesha.webp',
   },
   {
     id: 'ganesha',
@@ -56,7 +56,7 @@ export const GOD_COLLECTIONS = [
     subtitle: 'VIGHNAHARTA & SIDDHIVINAYAK',
     description: 'Auspicious Ganesha statues for home threshold, Paan Patta green leaf backrest, and office sanctums.',
     deityFilter: 'Shri Ganesha',
-    bannerImage: '/static/idols/paan-patta-green-leaf-ganesha.png',
+    bannerImage: '/static/idols/paan-patta-green-leaf-ganesha.webp',
   },
   {
     id: 'durga-hanuman',
@@ -64,7 +64,7 @@ export const GOD_COLLECTIONS = [
     subtitle: 'SHAKTI, VIRATA & SEVA',
     description: 'Sherawali Durga Maa on golden tiger, Sanjeevani Hanuman Ji, and Khatu Shyam Ji Sheesh avatar.',
     deityFilter: 'Durga & Hanuman',
-    bannerImage: '/static/idols/sherawali-durga-maa-tiger.png',
+    bannerImage: '/static/idols/sherawali-durga-maa-tiger.webp',
   },
 ];
 
@@ -168,7 +168,7 @@ export const DeityCatalogSection: React.FC<DeityCatalogSectionProps> = ({
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-12 space-y-3">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#F5F2ED] border border-[#D4AF37]/30 text-[#8B5A2B] text-xs font-serif uppercase tracking-widest font-bold">
-            <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
+            <Sparkle weight="fill" className="w-3.5 h-3.5 text-[#D4AF37]" />
             <span>Complete Sacred Vigraha Collection</span>
           </div>
           <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#3A2D20] tracking-tight">
@@ -214,9 +214,9 @@ export const DeityCatalogSection: React.FC<DeityCatalogSectionProps> = ({
         {/* Filter Bar (Deities Filter & Count) */}
         <div className="mb-8 p-4 bg-[#F5F2ED] rounded-lg border border-[#D4AF37]/25 flex flex-col md:flex-row items-center justify-between gap-4">
           {/* Deity Pill Buttons */}
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-serif font-semibold text-[#3A2D20] flex items-center gap-1.5 mr-2">
-              <Filter className="w-3.5 h-3.5 text-[#8B5A2B]" />
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+            <span className="text-xs font-serif font-semibold text-[#3A2D20] flex items-center gap-1.5 mr-1">
+              <Funnel weight="bold" className="w-3.5 h-3.5 text-[#8B5A2B]" />
               Filter Deity:
             </span>
             {[
@@ -231,10 +231,10 @@ export const DeityCatalogSection: React.FC<DeityCatalogSectionProps> = ({
                 key={btn.id}
                 onClick={() => setSelectedDeity(btn.id)}
                 className={cn(
-                  'px-3 py-1 text-xs font-serif rounded-full transition-all border',
+                  'px-3 py-1.5 min-h-[34px] text-xs font-serif rounded-full transition-all border flex items-center justify-center',
                   selectedDeity === btn.id
                     ? 'bg-[#8B5A2B] text-white border-[#8B5A2B] shadow-2xs font-bold'
-                    : 'bg-white text-[#5C5248] border-[#D4AF37]/30 hover:border-[#8B5A2B]'
+                    : 'bg-white text-[#5C5248] border-[#D4AF37]/30 hover:border-[#8B5A2B] hover:text-[#8B5A2B]'
                 )}
               >
                 {btn.label}
@@ -242,7 +242,7 @@ export const DeityCatalogSection: React.FC<DeityCatalogSectionProps> = ({
             ))}
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 w-full md:w-auto">
             <span className="text-xs font-serif font-semibold text-[#3A2D20]">Price:</span>
             {[
               { id: 'all', label: 'All' },
@@ -254,10 +254,10 @@ export const DeityCatalogSection: React.FC<DeityCatalogSectionProps> = ({
                 key={range.id}
                 onClick={() => setPriceRange(range.id)}
                 className={cn(
-                  'px-3 py-1 text-xs font-serif rounded-full transition-all border',
+                  'px-3 py-1.5 min-h-[34px] text-xs font-serif rounded-full transition-all border flex items-center justify-center',
                   priceRange === range.id
-                    ? 'bg-[#8B5A2B] text-white border-[#8B5A2B] font-bold'
-                    : 'bg-white text-[#5C5248] border-[#D4AF37]/30 hover:border-[#8B5A2B]'
+                    ? 'bg-[#8B5A2B] text-white border-[#8B5A2B] shadow-2xs font-bold'
+                    : 'bg-white text-[#5C5248] border-[#D4AF37]/30 hover:border-[#8B5A2B] hover:text-[#8B5A2B]'
                 )}
               >
                 {range.label}
@@ -299,13 +299,13 @@ export const DeityCatalogSection: React.FC<DeityCatalogSectionProps> = ({
         {/* Error State */}
         {error && sourceProducts.length === 0 && (
           <div className="text-center py-16 bg-[#FFFDF5] rounded-xl border border-red-200 p-6 space-y-4">
-            <AlertCircle className="w-8 h-8 text-red-600 mx-auto" />
+            <WarningCircle className="w-8 h-8 text-red-600 mx-auto" />
             <p className="text-sm font-serif text-red-700">{error}</p>
             <button
               onClick={loadProducts}
               className="inline-flex items-center gap-2 px-4 py-2 bg-[#8B5A2B] text-white text-xs font-serif rounded-sm hover:bg-[#724923] transition-colors"
             >
-              <RefreshCw className="w-3.5 h-3.5" />
+              <ArrowClockwise className="w-3.5 h-3.5" />
               <span>Retry Loading Catalog</span>
             </button>
           </div>
@@ -330,46 +330,33 @@ export const DeityCatalogSection: React.FC<DeityCatalogSectionProps> = ({
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredProducts.map((product) => {
-              const imageSrc = getProductImageUrl(product.images?.[0]) || '/static/idols/swarna-vastra-kamadhenu-krishna.png';
+              const imageSrc = getProductImageUrl(product.images?.[0]) || '/static/idols/swarna-vastra-kamadhenu-krishna.webp';
               return (
                 <article
                   key={product.id}
                   onClick={() => onSelectProduct(product.slug)}
                   className="group bg-[#FFFDF5] border border-[#D4AF37]/25 rounded-md overflow-hidden shadow-2xs hover:shadow-xl transition-all duration-300 flex flex-col cursor-pointer"
                 >
-                  {/* Image Container */}
-                  <div className="relative h-72 w-full bg-[#F5F2ED] overflow-hidden">
+                  {/* Image Container - Natural Uncropped Presentation (Head & Full Body Visible) */}
+                  <div className="relative h-80 sm:h-84 w-full bg-gradient-to-b from-[#FAF7F2] to-[#F1ECE3] p-4 flex items-center justify-center overflow-hidden border-b border-[#D4AF37]/15">
                     <img
                       src={imageSrc}
                       alt={product.name}
-                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-contain object-center group-hover:scale-[1.03] transition-transform duration-500 drop-shadow-xs"
                       loading="lazy"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
-
-                    {/* SKU Tag */}
-                    <div className="absolute top-3 left-3 bg-[#FFFDF5]/90 backdrop-blur-xs px-2.5 py-0.5 rounded-xs border border-[#D4AF37]/30 text-[10px] font-serif font-bold text-[#8B5A2B]">
-                      {product.sku}
-                    </div>
-
-                    {/* Discount Badge if any */}
-                    {product.discountBadge && (
-                      <div className="absolute top-3 right-3 bg-[#8B5A2B] text-white px-2 py-0.5 rounded-xs text-[9px] font-serif uppercase tracking-wider font-semibold">
-                        {product.discountBadge}
-                      </div>
-                    )}
                   </div>
 
-                  {/* Body Content */}
-                  <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
+                  {/* Body Content - Clean, Serene & Natural */}
+                  <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3">
                     <div>
-                      <span className="text-[10px] tracking-[0.2em] font-serif uppercase text-[#A67C52] font-semibold block mb-0.5">
+                      <span className="text-[10px] tracking-[0.2em] font-serif uppercase text-[#A67C52] font-semibold block mb-1">
                         {product.deity}
                       </span>
-                      <h3 className="font-serif text-base font-bold text-[#3A2D20] group-hover:text-[#8B5A2B] transition-colors leading-tight line-clamp-2">
+                      <h3 className="font-serif text-base sm:text-lg font-bold text-[#3A2D20] group-hover:text-[#8B5A2B] transition-colors leading-snug line-clamp-2">
                         {product.name}
                       </h3>
-                      <p className="mt-1.5 text-xs text-[#5C5248] line-clamp-2 font-sans leading-relaxed">
+                      <p className="mt-2 text-xs text-[#5C5248] line-clamp-2 font-sans leading-relaxed">
                         {product.shortDescription}
                       </p>
                     </div>
@@ -378,15 +365,16 @@ export const DeityCatalogSection: React.FC<DeityCatalogSectionProps> = ({
                     <div className="pt-3 border-t border-[#D4AF37]/20 flex items-center justify-between text-xs font-serif">
                       <div>
                         <span className="text-[9px] uppercase tracking-wider text-[#8A8177] block">
-                          Offering
+                          Sanctum Offering
                         </span>
-                        <span className="text-base font-bold text-[#8B5A2B]">
+                        <span className="text-base sm:text-lg font-bold text-[#8B5A2B]">
                           {formatCurrency(product.basePrice)}
                         </span>
                       </div>
 
                       <span className="text-[#8B5A2B] group-hover:translate-x-1 transition-transform inline-flex items-center gap-1 font-semibold text-xs">
-                        View Murti <ArrowRight className="w-3.5 h-3.5" />
+                        <span>View Murti</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
                       </span>
                     </div>
                   </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Star, Heart, ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
+import { Heart, ArrowLeft, ArrowRight } from '@phosphor-icons/react';
 import { getLiveProductsPaginated, getProductImageUrl } from '../../data/products';
 import { formatCurrency } from '../../lib/utils';
 import { Button } from '../ui/Button';
@@ -47,7 +47,6 @@ export const MasterpieceCarousel: React.FC<MasterpieceCarouselProps> = ({
     e.stopPropagation();
     setWishlisted((prev) => ({ ...prev, [id]: !prev[id] }));
   };
-
 
   return (
     <section className="py-20 bg-[#F5F2ED] border-t border-b border-[#D4AF37]/20">
@@ -99,7 +98,7 @@ export const MasterpieceCarousel: React.FC<MasterpieceCarouselProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-8">
             {featured.map((product) => {
               const isFav = wishlisted[product.id];
-              const imageSrc = getProductImageUrl(product.images?.[0]) || '/static/idols/swarna-vastra-kamadhenu-krishna.png';
+              const imageSrc = getProductImageUrl(product.images?.[0]) || '/static/idols/swarna-vastra-kamadhenu-krishna.webp';
               const sizeLabel = product.specifications?.heightWidth || product.specifications?.Weight || 'Handcrafted Sanctum Scale';
 
               return (
@@ -108,46 +107,35 @@ export const MasterpieceCarousel: React.FC<MasterpieceCarouselProps> = ({
                   onClick={() => onSelectProduct(product.slug)}
                   className="group bg-[#FFFDF5] border border-[#D4AF37]/25 rounded-md overflow-hidden shadow-2xs hover:shadow-lg transition-all duration-300 flex flex-col cursor-pointer"
                 >
-                  {/* Image Container with Badges */}
-                  <div className="relative h-72 w-full bg-[#FAF9F6] overflow-hidden">
+                  {/* Image Container - Full Murti Visibility (Head & Body Intact) */}
+                  <div className="relative h-80 sm:h-84 w-full bg-gradient-to-b from-[#FAF7F2] to-[#F1ECE3] p-4 flex items-center justify-center overflow-hidden border-b border-[#D4AF37]/15">
                     <img
                       src={imageSrc}
                       alt={product.name}
-                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-contain object-center group-hover:scale-[1.03] transition-transform duration-500 drop-shadow-xs"
                       loading="lazy"
                     />
-
-                    {/* Top Pill Tag */}
-                    <div className="absolute top-3 left-3 bg-[#FFFDF5]/90 backdrop-blur-xs px-2.5 py-1 rounded-xs border border-[#D4AF37]/30 text-[10px] font-serif uppercase tracking-widest text-[#8B5A2B] font-semibold">
-                      {product.material ? product.material.split('/')[0] : 'Handcrafted Resin'}
-                    </div>
 
                     {/* Wishlist Button */}
                     <button
                       onClick={(e) => toggleWishlist(e, product.id)}
                       aria-label={`Wishlist ${product.name}`}
-                      className="absolute top-3 right-3 w-8 h-8 rounded-full bg-[#FFFDF5]/90 backdrop-blur-xs border border-[#D4AF37]/30 flex items-center justify-center text-[#5C5248] hover:text-[#A34D3D] transition-colors focus:outline-none"
+                      className="absolute top-3 right-3 w-8 h-8 rounded-full bg-[#FFFDF5]/90 backdrop-blur-xs border border-[#D4AF37]/30 flex items-center justify-center text-[#5C5248] hover:text-[#A34D3D] transition-colors focus:outline-none shadow-2xs"
                     >
                       <Heart
-                        className={`w-4 h-4 ${isFav ? 'fill-[#A34D3D] text-[#A34D3D]' : ''}`}
+                        weight={isFav ? 'fill' : 'regular'}
+                        className={`w-4 h-4 ${isFav ? 'text-[#A34D3D]' : 'text-[#7D6E63]'}`}
                       />
                     </button>
                   </div>
 
-                  {/* Card Content */}
+                  {/* Card Content - Clean, Dignified & Natural */}
                   <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                    <div className="space-y-2">
-                      {/* Star Rating */}
-                      <div className="flex items-center gap-1.5 text-xs text-[#5C5248]">
-                        <div className="flex items-center text-[#D4AF37]">
-                          <Star className="w-3.5 h-3.5 fill-[#D4AF37]" />
-                        </div>
-                        <span className="font-semibold text-[#3A2D20]">{(product.rating || 5.0).toFixed(1)}</span>
-                        <span>({product.reviewCount || 0} Reviews)</span>
-                      </div>
-
-                      {/* Title */}
-                      <h3 className="font-serif text-lg font-bold text-[#3A2D20] group-hover:text-[#8B5A2B] transition-colors line-clamp-2 leading-snug">
+                    <div className="space-y-1.5">
+                      <span className="text-[10px] tracking-[0.2em] font-serif uppercase text-[#A67C52] font-semibold block">
+                        {product.deity || 'Sacred Murti'}
+                      </span>
+                      <h3 className="font-serif text-base sm:text-lg font-bold text-[#3A2D20] group-hover:text-[#8B5A2B] transition-colors line-clamp-2 leading-snug">
                         {product.name}
                       </h3>
                       <p className="text-xs text-[#5C5248] line-clamp-1">
@@ -157,29 +145,29 @@ export const MasterpieceCarousel: React.FC<MasterpieceCarouselProps> = ({
 
                     {/* Price & View Button */}
                     <div className="pt-3 border-t border-[#D4AF37]/20 flex items-center justify-between">
-                    <div>
-                      <span className="text-[9px] uppercase tracking-wider text-[#8A8177] block font-serif">
-                        Pratishtha Offering
-                      </span>
-                      <span className="font-serif text-lg font-bold text-[#8B5A2B]">
-                        {formatCurrency(product.basePrice)}
-                      </span>
-                    </div>
+                      <div>
+                        <span className="text-[9px] uppercase tracking-wider text-[#8A8177] block font-serif">
+                          Sanctum Offering
+                        </span>
+                        <span className="font-serif text-base sm:text-lg font-bold text-[#8B5A2B]">
+                          {formatCurrency(product.basePrice)}
+                        </span>
+                      </div>
 
-                    <Button
-                      variant="gold"
-                      size="sm"
-                      onClick={() => onSelectProduct(product.slug)}
-                      className="font-serif tracking-wider text-xs px-3"
-                    >
-                      View Details
-                    </Button>
+                      <Button
+                        variant="gold"
+                        size="sm"
+                        onClick={() => onSelectProduct(product.slug)}
+                        className="font-serif tracking-wider text-xs px-3"
+                      >
+                        View Details
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
         )}
       </div>
     </section>

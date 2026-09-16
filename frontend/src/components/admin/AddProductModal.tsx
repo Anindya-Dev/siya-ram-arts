@@ -1167,7 +1167,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                     type="text"
                     value={manualImageUrl}
                     onChange={(e) => setManualImageUrl(e.target.value)}
-                    placeholder="/static/idols/swarna-vastra-kamadhenu-krishna.png"
+                    placeholder="/static/idols/swarna-vastra-kamadhenu-krishna.webp"
                     className="flex-1 px-3 py-2 bg-white border border-[#D4AF37]/30 rounded-md text-xs text-[#3A2D20]"
                   />
                   <button
