@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
 import {
-  Search,
+  MagnifyingGlass,
   Heart,
-  ShoppingBag,
-  ChevronDown,
-  Sparkles,
-  Menu,
+  Bag,
+  CaretDown,
+  Sparkle,
+  List,
   X,
-  LogIn,
-  LogOut,
+  SignIn,
+  SignOut,
   User,
   ShieldCheck,
   Package,
   MapPin,
-  Settings,
-  HelpCircle,
-} from 'lucide-react';
+  Gear,
+  Question,
+} from '@phosphor-icons/react';
 import { cn } from '../../lib/utils';
 
 interface NavbarProps {
@@ -58,47 +58,57 @@ export const Navbar: React.FC<NavbarProps> = ({
     { icon: Package, label: 'My Orders', id: 'menu-my-orders', action: undefined as (() => void) | undefined },
     { icon: MapPin, label: 'Track Order', id: 'menu-track-order', action: onOpenTrackOrder },
     { icon: Heart, label: 'My Wishlist', id: 'menu-wishlist', action: onOpenWishlist },
-    { icon: Settings, label: 'Account Settings', id: 'menu-settings', action: undefined as (() => void) | undefined },
-    { icon: HelpCircle, label: 'Help & Support', id: 'menu-help', action: undefined as (() => void) | undefined },
+    { icon: Gear, label: 'Account Settings', id: 'menu-settings', action: undefined as (() => void) | undefined },
+    { icon: Question, label: 'Help & Support', id: 'menu-help', action: undefined as (() => void) | undefined },
   ];
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-[#FFFDF5] border-b border-[#D4AF37]/30 shadow-2xs">
+    <header className="sticky top-0 z-40 w-full bg-[#FFFDF5] border-b border-[#D4AF37]/30 shadow-xs">
       {/* Top Ribbon */}
-      <div className="bg-[#8B5A2B] text-[#FFFDF5] text-[11px] sm:text-xs font-serif tracking-[0.2em] py-1.5 px-4 text-center border-b border-[#724923] flex items-center justify-center gap-2">
-        <Sparkles className="w-3.5 h-3.5 text-[#D4AF37] animate-pulse" />
+      <div className="bg-[#8B5A2B] text-[#FFFDF5] text-[10px] sm:text-xs font-serif tracking-[0.15em] sm:tracking-[0.2em] py-1.5 px-3 sm:px-4 text-center border-b border-[#724923] flex items-center justify-center gap-1.5 sm:gap-2">
+        <Sparkle weight="fill" className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#D4AF37] animate-pulse shrink-0" />
         <span className="truncate">
           HANDCRAFTED IN JAIPUR &nbsp;|&nbsp; SPECIAL PACKAGING &amp; SHIPPING WORLDWIDE
         </span>
-        <Sparkles className="w-3.5 h-3.5 text-[#D4AF37] animate-pulse" />
+        <Sparkle weight="fill" className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#D4AF37] animate-pulse shrink-0 hidden sm:inline" />
       </div>
 
-      {/* Main Navigation */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20 gap-4">
+      {/* Main Navigation Bar */}
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 sm:h-20 gap-2 sm:gap-4">
 
-          {/* Brand Logo */}
-          <div className="flex items-center gap-6">
+          {/* Left: Mobile Menu Toggle & Brand Logo */}
+          <div className="flex items-center gap-2 sm:gap-4">
+            {/* Mobile Hamburger Toggle (Left for thumb ergonomics) */}
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className="lg:hidden p-2 -ml-1 text-[#5C5248] hover:text-[#8B5A2B] hover:bg-[#F5F2ED] rounded-md transition-colors focus:outline-none"
+              aria-label="Open navigation drawer"
+            >
+              <List className="w-6 h-6" />
+            </button>
+
+            {/* Brand Logo */}
             <button
               onClick={() => onNavigate('home')}
-              className="flex items-center gap-2.5 group text-left focus:outline-none"
+              className="flex items-center gap-2 sm:gap-2.5 group text-left focus:outline-none"
             >
-              <div className="w-8 h-8 flex items-center justify-center border border-[#A67C52] rounded-full text-[#A67C52] text-xs font-serif italic bg-[#FFFDF5] group-hover:border-[#8B5A2B] group-hover:text-[#8B5A2B] transition-colors">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center border border-[#A67C52] rounded-full text-[#A67C52] text-xs font-serif italic bg-[#FFFDF5] group-hover:border-[#8B5A2B] group-hover:text-[#8B5A2B] transition-colors shrink-0 shadow-2xs">
                 SR
               </div>
               <div className="flex flex-col">
-                <span className="font-serif text-2xl tracking-tighter text-[#8B5A2B] font-bold group-hover:text-[#724923] transition-colors leading-none">
+                <span className="font-serif text-lg sm:text-2xl tracking-tight text-[#8B5A2B] font-bold group-hover:text-[#724923] transition-colors leading-none">
                   Siya Ram Arts
                 </span>
-                <span className="text-[9px] uppercase tracking-[0.3em] text-[#A67C52] font-semibold mt-0.5 opacity-80">
+                <span className="text-[8px] sm:text-[9px] uppercase tracking-[0.25em] text-[#A67C52] font-semibold mt-0.5 opacity-85">
                   Jaipur Studio
                 </span>
               </div>
             </button>
           </div>
 
-          {/* Nav Links */}
-          <nav className="hidden xl:flex items-center gap-8 text-[11px] uppercase tracking-[0.2em] font-medium text-[#2D2D2D] opacity-80">
+          {/* Center: Desktop Nav Links (Visible lg+) */}
+          <nav className="hidden lg:flex items-center gap-6 xl:gap-8 text-xs uppercase tracking-[0.18em] font-medium text-[#2D2D2D]/90">
             <button
               onClick={() => {
                 onNavigate('home');
@@ -106,8 +116,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                 el?.scrollIntoView({ behavior: 'smooth' });
               }}
               className={cn(
-                'hover:text-[#8B5A2B] transition-colors flex items-center gap-1 pb-1',
-                currentView === 'home' && 'border-b border-[#8B5A2B] text-[#8B5A2B] font-bold opacity-100'
+                'hover:text-[#8B5A2B] transition-colors py-1',
+                currentView === 'home' && 'border-b-2 border-[#8B5A2B] text-[#8B5A2B] font-bold'
               )}
             >
               Collections
@@ -118,7 +128,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 const el = document.getElementById('deities');
                 el?.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="hover:text-[#8B5A2B] transition-colors pb-1"
+              className="hover:text-[#8B5A2B] transition-colors py-1"
             >
               Deities
             </button>
@@ -128,7 +138,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 const el = document.getElementById('about-us');
                 el?.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="hover:text-[#8B5A2B] transition-colors pb-1"
+              className="hover:text-[#8B5A2B] transition-colors py-1"
             >
               About Us
             </button>
@@ -136,9 +146,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Custom Idol Order Modal Trigger */}
             <button
               onClick={onOpenCustomIdol}
-              className="px-2.5 py-1 rounded bg-[#F5F2ED] border border-[#D4AF37]/40 text-[#8B5A2B] hover:bg-[#8B5A2B] hover:text-white transition-all flex items-center gap-1 font-bold text-[10px]"
+              className="px-3 py-1.5 rounded-md bg-[#F5F2ED] border border-[#D4AF37]/40 text-[#8B5A2B] hover:bg-[#8B5A2B] hover:text-white transition-all flex items-center gap-1.5 font-bold text-[11px] shadow-2xs"
             >
-              <span>✨ Custom Idol</span>
+              <Sparkle weight="fill" className="w-3.5 h-3.5 text-[#D4AF37]" />
+              <span>Custom Idol</span>
             </button>
 
             {/* Contact Us WhatsApp Redirection */}
@@ -146,53 +157,53 @@ export const Navbar: React.FC<NavbarProps> = ({
               href="https://wa.me/919876286046?text=Namaste%20Siya%20Ram%20Arts!%20%F0%9F%99%8F%0AI%20would%20like%20to%20inquire%20about%20your%20handcrafted%20sacred%20murtis%20and%20temple%20vigrahas."
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-[#25D366] text-[#2E7D32] transition-colors pb-1 font-bold flex items-center gap-1"
+              className="hover:text-[#25D366] text-[#2E7D32] transition-colors py-1 font-bold flex items-center gap-1"
             >
               <span>Contact Us</span>
             </a>
           </nav>
 
-          {/* Right Actions */}
-          <div className="flex items-center gap-3 sm:gap-4">
-            {/* Search */}
-            <div className="relative hidden md:block w-48 lg:w-56">
+          {/* Right Actions: Search, Wishlist, Bag, User/Login */}
+          <div className="flex items-center gap-1.5 sm:gap-3">
+            {/* Desktop Search */}
+            <div className="relative hidden md:block w-44 lg:w-56">
               <input
                 type="text"
                 placeholder="Search murtis..."
                 value={searchQuery}
                 onChange={(e) => onSearchChange(e.target.value)}
-                className="w-full pl-8 pr-4 py-1.5 text-xs bg-[#F5F2ED] border border-[#D4AF37]/30 rounded-sm focus:bg-white focus:border-[#8B5A2B] focus:outline-none transition-all placeholder:text-[#8C8276] text-[#2D2D2D]"
+                className="w-full pl-8 pr-3 py-1.5 text-xs bg-[#F5F2ED] border border-[#D4AF37]/30 rounded-md focus:bg-white focus:border-[#8B5A2B] focus:ring-1 focus:ring-[#8B5A2B] focus:outline-none transition-all placeholder:text-[#8C8276] text-[#2D2D2D]"
               />
-              <Search className="w-3.5 h-3.5 text-[#A67C52] absolute left-2.5 top-2 pointer-events-none" />
+              <MagnifyingGlass className="w-3.5 h-3.5 text-[#A67C52] absolute left-2.5 top-2 pointer-events-none" />
             </div>
 
-            {/* Wishlist */}
+            {/* Wishlist Button */}
             <button
               id="wishlist-btn"
               onClick={onOpenWishlist}
               aria-label={`Wishlist, ${wishlistCount} items`}
-              className="relative p-2 text-[#5C5248] hover:text-[#8B5A2B] hover:bg-[#F5F2ED] rounded-full transition-colors"
+              className="relative p-2 sm:p-2.5 text-[#5C5248] hover:text-[#8B5A2B] hover:bg-[#F5F2ED] rounded-md transition-colors"
               title="My Wishlist"
             >
-              <Heart className="w-4 h-4" />
+              <Heart className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
               {wishlistCount > 0 && (
-                <span className="absolute top-1 right-1 w-3.5 h-3.5 bg-[#D4AF37] text-[#2D2D2D] text-[9px] font-bold rounded-full flex items-center justify-center">
+                <span className="absolute top-1 right-1 w-4 h-4 bg-[#D4AF37] text-[#2D2D2D] text-[9px] font-bold rounded-full flex items-center justify-center shadow-2xs">
                   {wishlistCount}
                 </span>
               )}
             </button>
 
-            {/* Cart */}
+            {/* Cart / Bag Button */}
             <button
               id="cart-btn"
               onClick={onOpenCart}
               aria-label={`Cart with ${cartCount} items`}
-              className="flex items-center gap-1.5 px-2 py-1 text-[11px] font-medium text-[#2D2D2D] hover:text-[#8B5A2B] transition-colors"
+              className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-md hover:bg-[#F5F2ED] text-[#2D2D2D] hover:text-[#8B5A2B] transition-colors"
               title="My Bag"
             >
-              <ShoppingBag className="w-4 h-4 text-[#5C5248]" />
-              <span className="hidden sm:inline font-sans">Bag</span>
-              <span className="w-5 h-5 flex items-center justify-center bg-[#A67C52] text-white rounded-full text-[9px] font-bold">
+              <Bag className="w-4 h-4 sm:w-[18px] sm:h-[18px] text-[#5C5248]" />
+              <span className="hidden sm:inline font-serif text-xs font-semibold">Bag</span>
+              <span className="min-w-[18px] h-[18px] px-1 flex items-center justify-center bg-[#8B5A2B] text-white rounded-full text-[10px] font-bold shadow-2xs">
                 {cartCount}
               </span>
             </button>
@@ -203,49 +214,43 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <button
                   id="user-menu-btn"
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-sm border border-[#D4AF37]/40 bg-[#F5F2ED] hover:bg-[#EDE9E1] text-xs font-serif text-[#8B5A2B] transition-colors"
+                  className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-md border border-[#D4AF37]/40 bg-[#F5F2ED] hover:bg-[#EDE9E1] text-xs font-serif text-[#8B5A2B] transition-colors shadow-2xs"
                 >
                   {currentUser.imageUrl ? (
-                    <img src={currentUser.imageUrl} alt={currentUser.name} className="w-5 h-5 rounded-full object-cover" />
+                    <img src={currentUser.imageUrl} alt={currentUser.name} className="w-5 h-5 rounded-full object-cover shrink-0" />
                   ) : currentUser.role === 'admin' ? (
-                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <ShieldCheck className="w-4 h-4 shrink-0 text-[#8B5A2B]" />
                   ) : (
-                    <User className="w-3.5 h-3.5" />
+                    <User className="w-4 h-4 shrink-0 text-[#8B5A2B]" />
                   )}
-                  <span className="hidden sm:inline max-w-[80px] truncate">{currentUser.name}</span>
-                  <ChevronDown className={cn('w-3 h-3 transition-transform', userMenuOpen && 'rotate-180')} />
+                  <span className="hidden sm:inline max-w-[85px] truncate font-medium">{currentUser.name}</span>
+                  <CaretDown className={cn('w-3 h-3 transition-transform text-[#8B5A2B]', userMenuOpen && 'rotate-180')} />
                 </button>
 
                 {userMenuOpen && (
                   <>
-                    {/* Click outside to close */}
                     <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
-                    <div className="absolute right-0 mt-2 w-52 bg-white border border-[#D4AF37]/30 rounded-sm shadow-xl z-50 overflow-hidden">
-                      {/* User header */}
+                    <div className="absolute right-0 mt-2 w-56 bg-white border border-[#D4AF37]/30 rounded-md shadow-xl z-50 overflow-hidden animate-[fadeInUp_0.15s_ease]">
                       <div className="px-4 py-3 bg-[#FAF7F2] border-b border-[#D4AF37]/20">
                         <p className="text-xs font-bold text-[#3A2D20] font-serif">{currentUser.name}</p>
-                        <p className="text-[10px] text-[#8C7A6A] mt-0.5">
+                        <p className="text-[10px] text-[#8C7A6A] mt-0.5 font-sans">
                           {currentUser.role === 'admin' ? '⚙️ Admin Account' : '👤 Customer Account'}
                         </p>
                       </div>
 
                       <div className="py-1">
-                        {/* Admin Dashboard */}
                         {currentUser.role === 'admin' && (
                           <button
                             id="menu-admin-dashboard"
                             onClick={() => { onNavigate('admin'); setUserMenuOpen(false); }}
                             className="w-full text-left px-4 py-2.5 text-xs font-serif text-[#8B5A2B] hover:bg-[#FDF6E9] flex items-center gap-2.5 font-semibold"
                           >
-                            <ShieldCheck className="w-3.5 h-3.5" />
+                            <ShieldCheck className="w-4 h-4" />
                             Admin Dashboard
                           </button>
                         )}
-
-                        {/* Divider for admin */}
                         {currentUser.role === 'admin' && <div className="my-1 border-t border-[#D4AF37]/15" />}
 
-                        {/* User menu items */}
                         {userMenuItems.map((item) => (
                           <button
                             key={item.id}
@@ -256,20 +261,19 @@ export const Navbar: React.FC<NavbarProps> = ({
                             }}
                             className="w-full text-left px-4 py-2.5 text-xs font-serif text-[#3A2D20] hover:bg-[#F5F2ED] flex items-center gap-2.5 transition-colors"
                           >
-                            <item.icon className="w-3.5 h-3.5 text-[#A67C52]" />
+                            <item.icon className="w-4 h-4 text-[#A67C52]" />
                             {item.label}
                           </button>
                         ))}
 
                         <div className="my-1 border-t border-[#D4AF37]/15" />
 
-                        {/* Sign Out */}
                         <button
                           id="menu-sign-out"
                           onClick={() => { onLogout(); setUserMenuOpen(false); }}
-                          className="w-full text-left px-4 py-2.5 text-xs font-serif text-[#C0392B] hover:bg-[#FFF5F5] flex items-center gap-2.5 transition-colors"
+                          className="w-full text-left px-4 py-2.5 text-xs font-serif text-[#C0392B] hover:bg-[#FFF5F5] flex items-center gap-2.5 transition-colors font-medium"
                         >
-                          <LogOut className="w-3.5 h-3.5" />
+                          <SignOut className="w-4 h-4" />
                           Sign Out
                         </button>
                       </div>
@@ -278,61 +282,236 @@ export const Navbar: React.FC<NavbarProps> = ({
                 )}
               </div>
             ) : !clerkLoaded ? (
-              // Clerk still loading — show skeleton so Login doesn't flash for signed-in users
-              <div className="w-20 h-7 rounded-sm bg-[#E8DDD0] animate-pulse" />
+              <div className="w-16 sm:w-20 h-8 rounded-md bg-[#E8DDD0] animate-pulse" />
             ) : (
               <button
                 id="login-btn"
                 onClick={onLoginClick}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm bg-[#8B5A2B] hover:bg-[#724923] text-white text-xs font-serif tracking-wide transition-colors shadow-sm"
+                className="flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-md bg-[#8B5A2B] hover:bg-[#724923] text-white text-xs font-serif font-semibold tracking-wide transition-colors shadow-2xs"
               >
-                <LogIn className="w-3.5 h-3.5" />
+                <SignIn className="w-3.5 h-3.5" />
                 <span>Login</span>
               </button>
             )}
+          </div>
+        </div>
 
-
-            {/* Mobile Hamburger */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="xl:hidden p-2 text-[#5C5248] hover:text-[#8B5A2B] focus:outline-none"
-              aria-label="Toggle navigation menu"
-            >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
+        {/* Mobile Search Bar (Directly below header on small screens) */}
+        <div className="md:hidden pb-3 pt-1">
+          <div className="relative w-full">
+            <input
+              type="text"
+              placeholder="Search handcrafted murtis..."
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 text-xs bg-[#F5F2ED] border border-[#D4AF37]/35 rounded-md focus:bg-white focus:border-[#8B5A2B] focus:ring-1 focus:ring-[#8B5A2B] focus:outline-none transition-all placeholder:text-[#8C8276] text-[#2D2D2D]"
+            />
+            <MagnifyingGlass className="w-4 h-4 text-[#A67C52] absolute left-3 top-2.5 pointer-events-none" />
           </div>
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Navigation Drawer (Modern slide-over layout) */}
       {mobileMenuOpen && (
-        <div className="xl:hidden bg-[#FFFDF5] border-b border-[#D4AF37]/30 px-4 py-4 space-y-3">
-          <div className="grid grid-cols-2 gap-2 pb-3 border-b border-[#D4AF37]/20 text-xs font-serif">
-            {[
-              { label: 'Home', view: 'home' as const },
-              { label: 'Products', view: 'product' as const },
-            ].map(({ label, view }) => (
-              <button
-                key={view}
-                onClick={() => { onNavigate(view); setMobileMenuOpen(false); }}
-                className={cn(
-                  'p-2 rounded-sm text-center border',
-                  currentView === view
-                    ? 'bg-[#8B5A2B] text-white border-[#8B5A2B]'
-                    : 'bg-[#F5F2ED] text-[#5C5248] border-[#D4AF37]/30'
-                )}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-          <input
-            type="text"
-            placeholder="Search murtis..."
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full px-3 py-2 text-sm bg-[#F5F2ED] border border-[#D4AF37]/30 rounded-sm focus:outline-none"
+        <div className="lg:hidden fixed inset-0 z-50 flex" role="dialog" aria-modal="true">
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-[#1C1410]/60 backdrop-blur-xs transition-opacity"
+            onClick={() => setMobileMenuOpen(false)}
           />
+
+          {/* Drawer Content */}
+          <div className="relative w-[82%] max-w-sm bg-[#FFFDF5] h-full shadow-2xl flex flex-col justify-between overflow-y-auto border-r border-[#D4AF37]/30 z-10 animate-[slideInLeft_0.2s_ease]">
+            {/* Drawer Header */}
+            <div>
+              <div className="p-4 bg-[#FAF7F2] border-b border-[#D4AF37]/20 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 flex items-center justify-center border border-[#A67C52] rounded-full text-[#A67C52] text-xs font-serif italic bg-[#FFFDF5]">
+                    SR
+                  </div>
+                  <div>
+                    <span className="font-serif text-lg font-bold text-[#8B5A2B] block leading-tight">
+                      Siya Ram Arts
+                    </span>
+                    <span className="text-[9px] uppercase tracking-[0.2em] text-[#A67C52] font-semibold">
+                      Jaipur Sanctum Studio
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-1.5 text-[#5C5248] hover:text-[#8B5A2B] rounded-md hover:bg-[#F5F2ED]"
+                  aria-label="Close menu"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Navigation Links */}
+              <div className="p-4 space-y-1.5">
+                <p className="text-[10px] uppercase font-serif tracking-widest text-[#A67C52] font-bold px-3 py-1">
+                  Navigation
+                </p>
+
+                <button
+                  onClick={() => {
+                    onNavigate('home');
+                    setMobileMenuOpen(false);
+                  }}
+                  className={cn(
+                    'w-full text-left px-3 py-2.5 rounded-md text-sm font-serif flex items-center justify-between transition-colors',
+                    currentView === 'home'
+                      ? 'bg-[#8B5A2B] text-white font-bold shadow-2xs'
+                      : 'text-[#3A2D20] hover:bg-[#F5F2ED]'
+                  )}
+                >
+                  <span>Home</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    onNavigate('home');
+                    setMobileMenuOpen(false);
+                    setTimeout(() => {
+                      document.getElementById('collections')?.scrollIntoView({ behavior: 'smooth' });
+                    }, 100);
+                  }}
+                  className="w-full text-left px-3 py-2.5 rounded-md text-sm font-serif text-[#3A2D20] hover:bg-[#F5F2ED] transition-colors flex items-center justify-between"
+                >
+                  <span>Sacred Collections</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    onNavigate('home');
+                    setMobileMenuOpen(false);
+                    setTimeout(() => {
+                      document.getElementById('deities')?.scrollIntoView({ behavior: 'smooth' });
+                    }, 100);
+                  }}
+                  className="w-full text-left px-3 py-2.5 rounded-md text-sm font-serif text-[#3A2D20] hover:bg-[#F5F2ED] transition-colors flex items-center justify-between"
+                >
+                  <span>Deities Catalog</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    onNavigate('home');
+                    setMobileMenuOpen(false);
+                    setTimeout(() => {
+                      document.getElementById('about-us')?.scrollIntoView({ behavior: 'smooth' });
+                    }, 100);
+                  }}
+                  className="w-full text-left px-3 py-2.5 rounded-md text-sm font-serif text-[#3A2D20] hover:bg-[#F5F2ED] transition-colors flex items-center justify-between"
+                >
+                  <span>Atelier Lineage (About Us)</span>
+                </button>
+
+                <div className="pt-2">
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      onOpenCustomIdol?.();
+                    }}
+                    className="w-full px-3.5 py-2.5 rounded-md bg-[#F5F2ED] border border-[#D4AF37]/40 text-[#8B5A2B] hover:bg-[#8B5A2B] hover:text-white transition-all flex items-center gap-2 font-serif font-bold text-xs"
+                  >
+                    <Sparkle weight="fill" className="w-4 h-4 text-[#D4AF37]" />
+                    <span>Request Custom Murti</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Quick Customer Tools */}
+              <div className="p-4 border-t border-[#D4AF37]/20 space-y-1">
+                <p className="text-[10px] uppercase font-serif tracking-widest text-[#A67C52] font-bold px-3 py-1">
+                  Customer Care &amp; Tracking
+                </p>
+
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onOpenTrackOrder();
+                  }}
+                  className="w-full text-left px-3 py-2 rounded-md text-xs font-serif text-[#3A2D20] hover:bg-[#F5F2ED] flex items-center gap-2.5"
+                >
+                  <MapPin className="w-4 h-4 text-[#A67C52]" />
+                  <span>Track Sanctum Order</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onOpenWishlist();
+                  }}
+                  className="w-full text-left px-3 py-2 rounded-md text-xs font-serif text-[#3A2D20] hover:bg-[#F5F2ED] flex items-center justify-between"
+                >
+                  <span className="flex items-center gap-2.5">
+                    <Heart className="w-4 h-4 text-[#A67C52]" />
+                    <span>My Wishlist</span>
+                  </span>
+                  {wishlistCount > 0 && (
+                    <span className="px-2 py-0.5 bg-[#D4AF37] text-[#2D2D2D] rounded-full text-[10px] font-bold">
+                      {wishlistCount}
+                    </span>
+                  )}
+                </button>
+
+                <a
+                  href="https://wa.me/919876286046?text=Namaste%20Siya%20Ram%20Arts!%20%F0%9F%99%8F%0AI%20would%20like%20to%20inquire%20about%20your%20handcrafted%20sacred%20murtis%20and%20temple%20vigrahas."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full text-left px-3 py-2 rounded-md text-xs font-serif text-[#2E7D32] hover:bg-[#E8F5E9] flex items-center gap-2.5 font-semibold"
+                >
+                  <span>💬 WhatsApp Atelier Help</span>
+                </a>
+              </div>
+            </div>
+
+            {/* Drawer Footer: User Profile / Login */}
+            <div className="p-4 bg-[#FAF7F2] border-t border-[#D4AF37]/20">
+              {currentUser ? (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2.5">
+                    {currentUser.imageUrl ? (
+                      <img src={currentUser.imageUrl} alt={currentUser.name} className="w-8 h-8 rounded-full object-cover" />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-[#8B5A2B] text-white flex items-center justify-center text-xs font-bold font-serif">
+                        {currentUser.name.charAt(0)}
+                      </div>
+                    )}
+                    <div className="overflow-hidden">
+                      <p className="text-xs font-bold text-[#3A2D20] font-serif truncate">{currentUser.name}</p>
+                      <p className="text-[10px] text-[#8C7A6A] font-sans">
+                        {currentUser.role === 'admin' ? 'Atelier Admin' : 'Devotee Account'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      onLogout();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full mt-2 py-2 px-3 rounded-md bg-[#FFFDF5] border border-[#C0392B]/30 text-[#C0392B] hover:bg-[#FFF5F5] text-xs font-serif font-medium flex items-center justify-center gap-1.5 transition-colors"
+                  >
+                    <SignOut className="w-3.5 h-3.5" />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onLoginClick();
+                  }}
+                  className="w-full py-2.5 px-4 rounded-md bg-[#8B5A2B] hover:bg-[#724923] text-white text-xs font-serif font-semibold tracking-wide flex items-center justify-center gap-2 transition-colors shadow-sm"
+                >
+                  <SignIn className="w-4 h-4" />
+                  <span>Sign In / Register</span>
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </header>

@@ -5,14 +5,18 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
+    envDir: path.resolve(__dirname, '..'),
     plugins: [react(), tailwindcss()],
+    optimizeDeps: {
+      include: ['react', 'react-dom', '@phosphor-icons/react'],
+    },
     build: {
       rollupOptions: {
         output: {
           manualChunks: {
             'react-vendor': ['react', 'react-dom', 'react-dom/client', 'react/jsx-runtime'],
             'clerk-vendor': ['@clerk/clerk-react'],
-            'icons-vendor': ['lucide-react'],
+            'icons-vendor': ['lucide-react', '@phosphor-icons/react'],
           },
         },
       },
@@ -21,6 +25,7 @@ export default defineConfig(() => {
       alias: {
         '@': path.resolve(__dirname, '.'),
       },
+      dedupe: ['react', 'react-dom'],
     },
     server: {
       port: 3000,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight } from '@phosphor-icons/react';
 import { COMPANIONS } from '../../data/products';
 import { formatCurrency } from '../../lib/utils';
 
@@ -37,16 +37,13 @@ export const CompanionsSection: React.FC<CompanionsSectionProps> = ({
             onClick={() => onSelectProduct(companion.slug)}
             className="group bg-[#FFFDF5] border border-[#D4AF37]/25 rounded-md overflow-hidden shadow-2xs hover:shadow-lg transition-all cursor-pointer flex flex-col"
           >
-            {/* Image */}
-            <div className="relative h-72 w-full bg-[#F5F2ED] overflow-hidden">
+            {/* Image - Full Murti Visibility */}
+            <div className="relative h-72 sm:h-80 w-full bg-gradient-to-b from-[#FAF7F2] to-[#F1ECE3] p-4 flex items-center justify-center overflow-hidden border-b border-[#D4AF37]/15">
               <img
                 src={companion.image}
                 alt={companion.name}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                className="w-full h-full object-contain object-center group-hover:scale-[1.03] transition-transform duration-500 drop-shadow-xs"
               />
-              <div className="absolute top-3 right-3 bg-[#FFFDF5]/90 backdrop-blur-xs px-2.5 py-1 rounded-xs border border-[#D4AF37]/30 text-[10px] font-serif uppercase tracking-widest text-[#8B5A2B] font-bold shadow-2xs">
-                {companion.tag}
-              </div>
             </div>
 
             {/* Content */}
