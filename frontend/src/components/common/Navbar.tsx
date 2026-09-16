@@ -75,40 +75,35 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Main Navigation Bar */}
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 sm:h-20 gap-2 sm:gap-4">
+        <div className="flex items-center justify-between h-16 sm:h-18 gap-2 sm:gap-4">
 
-          {/* Left: Mobile Menu Toggle & Brand Logo */}
-          <div className="flex items-center gap-2 sm:gap-4">
-            {/* Mobile Hamburger Toggle (Left for thumb ergonomics) */}
+          {/* Left: Mobile Hamburger Toggle & Compact Text-Based Brand Logo */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Mobile Hamburger Toggle */}
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="lg:hidden p-2 -ml-1 text-[#5C5248] hover:text-[#8B5A2B] hover:bg-[#F5F2ED] rounded-md transition-colors focus:outline-none"
+              className="lg:hidden p-1.5 -ml-1 text-[#5C5248] hover:text-[#8B5A2B] hover:bg-[#F5F2ED] rounded-md transition-colors focus:outline-none"
               aria-label="Open navigation drawer"
             >
-              <List className="w-6 h-6" />
+              <List className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
 
-            {/* Brand Logo */}
+            {/* Compact Text-Based Brand Logo (No circular badge) */}
             <button
               onClick={() => onNavigate('home')}
-              className="flex items-center gap-2 sm:gap-2.5 group text-left focus:outline-none"
+              className="flex flex-col text-left group focus:outline-none select-none transition-transform active:scale-[0.98]"
             >
-              <div className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center border border-[#A67C52] rounded-full text-[#A67C52] text-xs font-serif italic bg-[#FFFDF5] group-hover:border-[#8B5A2B] group-hover:text-[#8B5A2B] transition-colors shrink-0 shadow-2xs">
-                SR
-              </div>
-              <div className="flex flex-col">
-                <span className="font-serif text-lg sm:text-2xl tracking-tight text-[#8B5A2B] font-bold group-hover:text-[#724923] transition-colors leading-none">
-                  Siya Ram Arts
-                </span>
-                <span className="text-[8px] sm:text-[9px] uppercase tracking-[0.25em] text-[#A67C52] font-semibold mt-0.5 opacity-85">
-                  Jaipur Studio
-                </span>
-              </div>
+              <span className="font-serif text-[17px] sm:text-lg lg:text-xl font-bold tracking-tight text-[#8B5A2B] group-hover:text-[#724923] transition-colors leading-none whitespace-nowrap">
+                Siya Ram Arts
+              </span>
+              <span className="text-[7.5px] sm:text-[8.5px] uppercase tracking-[0.24em] text-[#A67C52] font-semibold leading-none mt-1 whitespace-nowrap">
+                Jaipur Studio
+              </span>
             </button>
           </div>
 
-          {/* Center: Desktop Nav Links (Visible lg+) */}
-          <nav className="hidden lg:flex items-center gap-6 xl:gap-8 text-xs uppercase tracking-[0.18em] font-medium text-[#2D2D2D]/90">
+          {/* Center: Desktop Nav Links (Collections, Deities, Custom Idol, Contact Us, About Us) */}
+          <nav className="hidden lg:flex items-center justify-center gap-6 xl:gap-8 text-xs uppercase tracking-[0.16em] font-medium text-[#2D2D2D]/90">
             <button
               onClick={() => {
                 onNavigate('home');
@@ -116,8 +111,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                 el?.scrollIntoView({ behavior: 'smooth' });
               }}
               className={cn(
-                'hover:text-[#8B5A2B] transition-colors py-1',
-                currentView === 'home' && 'border-b-2 border-[#8B5A2B] text-[#8B5A2B] font-bold'
+                'hover:text-[#8B5A2B] transition-colors py-1 relative whitespace-nowrap',
+                currentView === 'home' && 'text-[#8B5A2B] font-bold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-[#8B5A2B]'
               )}
             >
               Collections
@@ -128,51 +123,47 @@ export const Navbar: React.FC<NavbarProps> = ({
                 const el = document.getElementById('deities');
                 el?.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="hover:text-[#8B5A2B] transition-colors py-1"
+              className="hover:text-[#8B5A2B] transition-colors py-1 whitespace-nowrap"
             >
               Deities
             </button>
+            <button
+              onClick={onOpenCustomIdol}
+              className="hover:text-[#8B5A2B] transition-colors py-1 flex items-center gap-1 font-semibold whitespace-nowrap"
+            >
+              <Sparkle weight="fill" className="w-3 h-3 text-[#D4AF37]" />
+              <span>Custom Idol</span>
+            </button>
+            <a
+              href="https://wa.me/919876286046?text=Namaste%20Siya%20Ram%20Arts!%20%F0%9F%99%8F%0AI%20would%20like%20to%20inquire%20about%20your%20handcrafted%20sacred%20murtis%20and%20temple%20vigrahas."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-[#25D366] text-[#2E7D32] transition-colors py-1 font-semibold whitespace-nowrap"
+            >
+              Contact Us
+            </a>
             <button
               onClick={() => {
                 onNavigate('home');
                 const el = document.getElementById('about-us');
                 el?.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="hover:text-[#8B5A2B] transition-colors py-1"
+              className="hover:text-[#8B5A2B] transition-colors py-1 text-[#5C5248] whitespace-nowrap"
             >
               About Us
             </button>
-
-            {/* Custom Idol Order Modal Trigger */}
-            <button
-              onClick={onOpenCustomIdol}
-              className="px-3 py-1.5 rounded-md bg-[#F5F2ED] border border-[#D4AF37]/40 text-[#8B5A2B] hover:bg-[#8B5A2B] hover:text-white transition-all flex items-center gap-1.5 font-bold text-[11px] shadow-2xs"
-            >
-              <Sparkle weight="fill" className="w-3.5 h-3.5 text-[#D4AF37]" />
-              <span>Custom Idol</span>
-            </button>
-
-            {/* Contact Us WhatsApp Redirection */}
-            <a
-              href="https://wa.me/919876286046?text=Namaste%20Siya%20Ram%20Arts!%20%F0%9F%99%8F%0AI%20would%20like%20to%20inquire%20about%20your%20handcrafted%20sacred%20murtis%20and%20temple%20vigrahas."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-[#25D366] text-[#2E7D32] transition-colors py-1 font-bold flex items-center gap-1"
-            >
-              <span>Contact Us</span>
-            </a>
           </nav>
 
-          {/* Right Actions: Search, Wishlist, Bag, User/Login */}
-          <div className="flex items-center gap-1.5 sm:gap-3">
-            {/* Desktop Search */}
-            <div className="relative hidden md:block w-44 lg:w-56">
+          {/* Right Actions: Search bar, Wishlist, Shopping Bag, User Profile / Login */}
+          <div className="flex items-center gap-1 sm:gap-2 lg:gap-2.5 shrink-0">
+            {/* Desktop Search Bar */}
+            <div className="relative hidden md:block w-36 lg:w-44 xl:w-52">
               <input
                 type="text"
                 placeholder="Search murtis..."
                 value={searchQuery}
                 onChange={(e) => onSearchChange(e.target.value)}
-                className="w-full pl-8 pr-3 py-1.5 text-xs bg-[#F5F2ED] border border-[#D4AF37]/30 rounded-md focus:bg-white focus:border-[#8B5A2B] focus:ring-1 focus:ring-[#8B5A2B] focus:outline-none transition-all placeholder:text-[#8C8276] text-[#2D2D2D]"
+                className="w-full pl-8 pr-3 py-1.5 text-xs bg-[#F5F2ED] border border-[#D4AF37]/30 rounded-full focus:bg-white focus:border-[#8B5A2B] focus:ring-1 focus:ring-[#8B5A2B] focus:outline-none transition-all placeholder:text-[#8C8276] text-[#2D2D2D]"
               />
               <MagnifyingGlass className="w-3.5 h-3.5 text-[#A67C52] absolute left-2.5 top-2 pointer-events-none" />
             </div>
@@ -182,30 +173,31 @@ export const Navbar: React.FC<NavbarProps> = ({
               id="wishlist-btn"
               onClick={onOpenWishlist}
               aria-label={`Wishlist, ${wishlistCount} items`}
-              className="relative p-2 sm:p-2.5 text-[#5C5248] hover:text-[#8B5A2B] hover:bg-[#F5F2ED] rounded-md transition-colors"
+              className="relative p-2 text-[#5C5248] hover:text-[#8B5A2B] hover:bg-[#F5F2ED] rounded-full transition-colors"
               title="My Wishlist"
             >
               <Heart className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
               {wishlistCount > 0 && (
-                <span className="absolute top-1 right-1 w-4 h-4 bg-[#D4AF37] text-[#2D2D2D] text-[9px] font-bold rounded-full flex items-center justify-center shadow-2xs">
+                <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-[#D4AF37] text-[#2D2D2D] text-[9px] font-bold rounded-full flex items-center justify-center shadow-2xs">
                   {wishlistCount}
                 </span>
               )}
             </button>
 
-            {/* Cart / Bag Button */}
+            {/* Shopping Bag Button */}
             <button
               id="cart-btn"
               onClick={onOpenCart}
               aria-label={`Cart with ${cartCount} items`}
-              className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-md hover:bg-[#F5F2ED] text-[#2D2D2D] hover:text-[#8B5A2B] transition-colors"
+              className="relative p-2 text-[#5C5248] hover:text-[#8B5A2B] hover:bg-[#F5F2ED] rounded-full transition-colors"
               title="My Bag"
             >
-              <Bag className="w-4 h-4 sm:w-[18px] sm:h-[18px] text-[#5C5248]" />
-              <span className="hidden sm:inline font-serif text-xs font-semibold">Bag</span>
-              <span className="min-w-[18px] h-[18px] px-1 flex items-center justify-center bg-[#8B5A2B] text-white rounded-full text-[10px] font-bold shadow-2xs">
-                {cartCount}
-              </span>
+              <Bag className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
+              {cartCount > 0 && (
+                <span className="absolute top-0.5 right-0.5 min-w-[16px] h-4 px-1 bg-[#8B5A2B] text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-2xs">
+                  {cartCount}
+                </span>
+              )}
             </button>
 
             {/* Login / User Dropdown */}
@@ -214,7 +206,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <button
                   id="user-menu-btn"
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-md border border-[#D4AF37]/40 bg-[#F5F2ED] hover:bg-[#EDE9E1] text-xs font-serif text-[#8B5A2B] transition-colors shadow-2xs"
+                  className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full border border-[#D4AF37]/40 bg-[#F5F2ED] hover:bg-[#EDE9E1] text-xs font-serif text-[#8B5A2B] transition-colors shadow-2xs"
                 >
                   {currentUser.imageUrl ? (
                     <img src={currentUser.imageUrl} alt={currentUser.name} className="w-5 h-5 rounded-full object-cover shrink-0" />
@@ -223,7 +215,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   ) : (
                     <User className="w-4 h-4 shrink-0 text-[#8B5A2B]" />
                   )}
-                  <span className="hidden sm:inline max-w-[85px] truncate font-medium">{currentUser.name}</span>
+                  <span className="hidden sm:inline max-w-[75px] truncate font-medium">{currentUser.name}</span>
                   <CaretDown className={cn('w-3 h-3 transition-transform text-[#8B5A2B]', userMenuOpen && 'rotate-180')} />
                 </button>
 
@@ -282,15 +274,15 @@ export const Navbar: React.FC<NavbarProps> = ({
                 )}
               </div>
             ) : !clerkLoaded ? (
-              <div className="w-16 sm:w-20 h-8 rounded-md bg-[#E8DDD0] animate-pulse" />
+              <div className="w-16 sm:w-20 h-8 rounded-full bg-[#E8DDD0] animate-pulse" />
             ) : (
               <button
                 id="login-btn"
                 onClick={onLoginClick}
-                className="flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-md bg-[#8B5A2B] hover:bg-[#724923] text-white text-xs font-serif font-semibold tracking-wide transition-colors shadow-2xs"
+                className="flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-full bg-[#8B5A2B] hover:bg-[#724923] text-white text-xs font-serif font-semibold tracking-wide transition-colors shadow-2xs whitespace-nowrap"
               >
                 <SignIn className="w-3.5 h-3.5" />
-                <span>Login</span>
+                <span>Sign In</span>
               </button>
             )}
           </div>
@@ -325,18 +317,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Drawer Header */}
             <div>
               <div className="p-4 bg-[#FAF7F2] border-b border-[#D4AF37]/20 flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 flex items-center justify-center border border-[#A67C52] rounded-full text-[#A67C52] text-xs font-serif italic bg-[#FFFDF5]">
-                    SR
-                  </div>
-                  <div>
-                    <span className="font-serif text-lg font-bold text-[#8B5A2B] block leading-tight">
-                      Siya Ram Arts
-                    </span>
-                    <span className="text-[9px] uppercase tracking-[0.2em] text-[#A67C52] font-semibold">
-                      Jaipur Sanctum Studio
-                    </span>
-                  </div>
+                <div className="flex flex-col text-left">
+                  <span className="font-serif text-base font-bold text-[#8B5A2B] leading-tight whitespace-nowrap">
+                    Siya Ram Arts
+                  </span>
+                  <span className="text-[7.5px] uppercase tracking-[0.22em] text-[#A67C52] font-semibold mt-0.5 whitespace-nowrap">
+                    Jaipur Studio
+                  </span>
                 </div>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
